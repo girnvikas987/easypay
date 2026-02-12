@@ -1,0 +1,114 @@
+<?php
+
+namespace App\Rules;
+
+use App\Models\GoldInvestment;
+use App\Models\GoldPackage;
+use App\Models\Investment;
+use App\Models\Package;
+use App\Models\User;
+use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Support\Facades\Auth;
+
+class ValidateGoldPackage implements ValidationRule
+{
+    /**
+     * Run the validation rule.
+     *
+     * @param  \Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     */
+    public function __construct($request)
+    {
+        $this->request = $request;
+    }
+    public function validate(string $attribute, mixed $value, Closure $fail): void
+    {
+      
+        $request = $this->request;
+        $wallet_type = $request->wallet_type;
+        $check_exists = GoldPackage::where('id',$this->request->package)->first();
+        
+        if($check_exists){
+            $minReq=$check_exists->min;
+            $maxReq=$check_exists->max;
+            if ($check_exists->type=='manual') {
+                # code...
+                if($this->request->amount!=''){
+                    if($this->request->amount<$minReq){
+                        $fail("Amount Should Be minimum $minReq .");
+                    } 
+                    if($this->request->amount>$maxReq){
+                        $fail("Amount Should Be maximum $maxReq .");
+                    }
+                    if ($request->user()->wallet->$wallet_type<$this->request->amount) {
+                        $fail('Insufficient Fund in wallet');
+                    }
+                    
+                }else{
+                    $fail('Invalid Amount!');
+                }
+            }else{
+                if ($request->user()->wallet->$wallet_type<$check_exists->amount) {
+                
+                    $fail('Insufficient Fund in wallet');
+                }
+            }
+
+        
+            
+
+            if($check_exists->no_of_time=="once")
+            {                
+                if($request->mobile){
+                    $tx_user = User::where('mobile',$request->mobile)->first();
+                    if($tx_user){
+                        $chkinvestmentExists = GoldInvestment::where('package_id',$check_exists->id)->where('user_id',$tx_user->id)->where('pkg_status',1)->first();
+                        if($chkinvestmentExists){
+                            $fail('You can buy this package only once.');
+                        }
+                    }else{
+                        $fail('User not Exists.');
+                    }
+                }else{
+                    $fail('Enter User.');
+
+                }
+                
+
+            }
+
+        //     if($check_exists->pre_reqired==1)
+        //     {   
+        //         $oid = $check_exists->id;
+        //         $pre_id = $oid-1;
+        //         if($pre_id>=1){
+
+        //             $userInvestments = $request->user()->investments;
+                    
+        //             if($request->mobile){
+        //                 $tx_user = User::where('mobile',$request->mobile)->first();
+        //                 if($tx_user){
+        //                     $chkinvestmentExists = Investment::where('package_id',$pre_id)->where('user_id',$tx_user->id)->where('status',1)->first();
+        //                     if(!$chkinvestmentExists){
+        //                         $fail('Buy Previous Package first');
+        //                     }
+        //                 }else{
+        //                     $fail('User not Exists.');
+        //                 }
+        //             }else{
+        //                 $fail('Enter User.');
+    
+        //             }
+                    
+        //         }
+                
+        //     }
+
+        // }else{
+        //     $fail('Invalid Package!');
+        // }
+        }
+    }
+
+}
