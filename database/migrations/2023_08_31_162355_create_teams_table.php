@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('sponsor')->nullable();
             $table->unsignedBigInteger('user_id');
-            $table->longText('gen')->nullable()->default("[]");
+            $table->longText('gen')->nullable();
             $table->tinyInteger('active_status')->nullable()->default(0);
              $table->foreign('user_id')->references('id')->on('users');
               $table->string('position')->nullable();
