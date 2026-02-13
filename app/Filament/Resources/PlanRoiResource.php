@@ -42,11 +42,11 @@ class PlanRoiResource extends Resource
                         ->required(),
                     Forms\Components\TextInput::make('direct_required')
                         ->numeric()
-                        ->default(0),               
+                        ->default(0),
                     Select::make('commision_type')
                             ->options([
                                 'percent' => 'Percent',
-                                'fixed' => 'Fixed',                        
+                                'fixed' => 'Fixed',
                             ])
                             ->required(),
                     Forms\Components\TextInput::make('value')
@@ -101,14 +101,14 @@ class PlanRoiResource extends Resource
                 ]),
             ]);
     }
-    
+
     public static function getRelations(): array
     {
         return [
             RoiLevelRelationManager::class,
         ];
     }
-    
+
     public static function getPages(): array
     {
         return [
@@ -116,5 +116,5 @@ class PlanRoiResource extends Resource
             'create' => Pages\CreatePlanRoi::route('/create'),
             'edit' => Pages\EditPlanRoi::route('/{record}/edit'),
         ];
-    }    
+    }
 }

@@ -15,10 +15,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
 use Validator;
 use App\Models\Wallet;
+use App\Models\Support;
 use Illuminate\Support\Str;
 use Ixudra\Curl\Facades\Curl;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Carbon; 
+use Illuminate\Support\Carbon;
 use Stringable;
 class FundRequestController extends Controller
 {
@@ -29,7 +30,7 @@ class FundRequestController extends Controller
 
 
             $curl = curl_init();
-            
+
             curl_setopt_array($curl, array(
             CURLOPT_URL => 'https://api-preprod.phonepe.com/apis/pg-sandbox/v1/oauth/token',
             CURLOPT_RETURNTRANSFER => true,
@@ -44,9 +45,9 @@ class FundRequestController extends Controller
                 'Content-Type: application/x-www-form-urlencoded'
             ),
             ));
-            
+
             $response = curl_exec($curl);
-            
+
             curl_close($curl);
             $result = json_decode($response,true);
             return $result['access_token'];
@@ -54,10 +55,10 @@ class FundRequestController extends Controller
     }
 
     public function makeOrder(Request $request){
-            $validator = Validator::make($request->all(),[  
-                'amount' => ['required', 'numeric','min:100']
+            $validator = Validator::make($request->all(),[
+                'amount' => ['required', 'numeric','min:1']
             ]);
-        
+
             if ($validator->fails()) {
                     $response = [
                         'success' => false,
@@ -66,96 +67,178 @@ class FundRequestController extends Controller
                     return response()->json($response, 200);
 
             }
-
-           $accessToken =  $this->getphonePayToken();
+            $mobile = $request->user()->mobile;
+        //   $accessToken =  $this->getphonePayToken();
            $amount =  $request->amount;
 
             $timestamp = "TXR".now()->format('YmdHis'); // Current timestamp
             $randomString = Str::random(5); // Random string (adjust the length as needed)
 
-            $transactionId = $timestamp . $randomString; 
+            $transactionId = $timestamp . $randomString;
 
- 
-                            
+
+
+                // $curl = curl_init();
+
+                // curl_setopt_array($curl, array(
+                // CURLOPT_URL => 'https://api-preprod.phonepe.com/apis/pg-sandbox/checkout/v2/sdk/order',
+                // CURLOPT_RETURNTRANSFER => true,
+                // CURLOPT_ENCODING => '',
+                // CURLOPT_MAXREDIRS => 10,
+                // CURLOPT_TIMEOUT => 0,
+                // CURLOPT_FOLLOWLOCATION => true,
+                // CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                // CURLOPT_CUSTOMREQUEST => 'POST',
+                // CURLOPT_POSTFIELDS =>'{
+                // "merchantOrderId": "'.$transactionId.'",
+                // "amount": '.$amount.',
+                // "paymentFlow": {
+                //     "type": "PG_CHECKOUT",
+                //     "message": "Payment message used for collect requests",
+                //     "merchantUrls": {
+                //     "redirectUrl": "https://www.xyz.com/PGIntegration/"
+                //     }
+                // }
+                // }',
+                // CURLOPT_HTTPHEADER => array(
+                //     'Content-Type: application/json',
+                //     'Authorization: O-Bearer '.$accessToken
+                // ),
+                // ));
+
                 $curl = curl_init();
 
                 curl_setopt_array($curl, array(
-                CURLOPT_URL => 'https://api-preprod.phonepe.com/apis/pg-sandbox/checkout/v2/sdk/order',
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_POSTFIELDS =>'{
-                "merchantOrderId": "'.$transactionId.'",
-                "amount": '.$amount.',
-                "paymentFlow": {
-                    "type": "PG_CHECKOUT",
-                    "message": "Payment message used for collect requests",
-                    "merchantUrls": {
-                    "redirectUrl": "https://www.xyz.com/PGIntegration/"
-                    }
-                }
-                }',
-                CURLOPT_HTTPHEADER => array(
-                    'Content-Type: application/json',
-                    'Authorization: O-Bearer '.$accessToken
-                ),
+                  CURLOPT_URL => 'https://pay.imb.org.in/api/create-order',
+                  CURLOPT_RETURNTRANSFER => true,
+                  CURLOPT_ENCODING => '',
+                  CURLOPT_MAXREDIRS => 10,
+                  CURLOPT_TIMEOUT => 0,
+                  CURLOPT_FOLLOWLOCATION => true,
+                  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                  CURLOPT_CUSTOMREQUEST => 'POST',
+                  CURLOPT_POSTFIELDS => 'customer_mobile='.$mobile.'&user_token=501d4129ba8fbb1815615687939e6d4d&amount='.$amount.'&order_id='.$transactionId.'&redirect_url=https%3A%2F%2Feasydigipays.com%2Fpayment%2Fsuccess%3Ftransaction_id%3D'.$transactionId.'&remark1=&remark2=',
+                  CURLOPT_HTTPHEADER => array(
+                    'Content-Type: application/x-www-form-urlencoded'
+                  ),
                 ));
 
                 $response = curl_exec($curl);
 
+
                 curl_close($curl);
-           
-       
+
+
             $result = json_decode($response,true);
 
-            $orderId = $result['orderId'];
-            $redirectUrl = $result['token'];
+            if($result['status']){
 
-            DB::beginTransaction();
-            try {
-                //code...
-                UserFundRequest::create([
-                    'user_id' => Auth::user()->id,
-                    'utr_number' => $orderId,
-                    'fund_request_method_option_id' => 1,
-                    'fund_request_method_id' => 1,
-                    'amount' => $amount, 
-                    'screenshot' =>$transactionId,
-                    'status'  => 0
-                ]);
 
-                
-                    
-                DB::commit();
-                    $response =[
-                            'status'=> true,
-                            'url'=>  $redirectUrl,
-                            'transactionId'=> $orderId,
-                            'message'=> 'Fund Request successful.'
-                        ];
-    
-            } catch (\Exception $e) {
-                //throw $th;
-                DB::rollBack();
-                
-                    $response =[
+                 $orderId = $result['result']['orderId'];
+                $redirectUrl = $result['result']['payment_url'];
+
+                    DB::beginTransaction();
+                    try {
+                        //code...
+                        UserFundRequest::create([
+                            'user_id' => Auth::user()->id,
+                            'utr_number' => $orderId,
+                            'fund_request_method_option_id' => 1,
+                            'fund_request_method_id' => 1,
+                            'amount' => $amount,
+                            'wallet' => $request->wallet_type,
+                            'screenshot' =>$transactionId,
+                            'status'  => 0
+                        ]);
+
+
+
+                        DB::commit();
+                            $response =[
+                                    'status'=> true,
+                                    'url'=>  $redirectUrl,
+                                    'transactionId'=> $orderId,
+                                    'message'=> 'Fund Request successful.'
+                                ];
+
+                    } catch (\Exception $e) {
+                        //throw $th;
+                        DB::rollBack();
+                                $response =[
+                                    'status'=> false,
+                                    'error'=> $e,
+                                    'message'=> 'Something wrong!'
+                                ];
+
+                    }
+
+            }else{
+
+
+                           $response =[
                             'status'=> false,
-                            'error'=> $e,
-                            'message'=> 'Something wrong!'
+                            'message'=> $result['message']
                         ];
-    
-            }       
-                                 
-            return response()->json($response, 200);   
+
+
+            }
+
+
+
+            return response()->json($response, 200);
 
 
     }
 
 
+    public function handlewebhook(Request $request)
+    {
+
+        $status   = $request->status;
+        $order_id = $request->order_id;
+        $result   = $request->result;
+        $txnStatus = $result['txnStatus'] ?? '';
+        $amount    = $result['amount'] ?? '';
+
+        if ($status === 'SUCCESS' && $txnStatus === 'COMPLETED') {
+                 $Exists = UserFundRequest::where('utr_number',$order_id)->first();
+                    if($Exists){
+                        if($Exists->status->value !='1' && $Exists->status->value !='2'){
+                            $wallet = $Exists->wallet;
+
+                            $amount = $result['amount'];
+                            $userId = $Exists->user_id;
+                            $Exists->status = 1;
+                            $Exists->save();
+                            Wallet::where('user_id',$userId)->increment($wallet,$amount);
+                        }
+
+                    }
+
+                return response()->json([
+                    'response' => 'TRUE',
+                    'message'  => 'Transaction processed successfully'
+                ], 200);
+            }
+
+            // ❌ Failed transaction case
+            return response()->json([
+                'response' => 'FALSE',
+                'message'  => $message ?? 'Transaction failed'
+            ], 200);
+    }
+
+
+
+    public function success(Request $request)
+    {
+         $txn_date = date('d-m-Y');
+
+        $txn_id = $request->input('transaction_id');
+
+
+        return view('success',['transaction_id'=>$txn_id]);
+    }
 
     public function handle(Request $request)
     {
@@ -172,9 +255,9 @@ class FundRequestController extends Controller
         $fundRequest = UserFundRequest::where('utr_number', $orderId)->first();
 
         if ($fundRequest) {
-           
-       
- 
+
+
+
         $paymentDetails = $payload['paymentDetails'][0] ?? null;
         $transactionId = $paymentDetails['transactionId'] ?? null;
         $paymentMode = $paymentDetails['paymentMode'] ?? null;
@@ -186,7 +269,7 @@ class FundRequestController extends Controller
         } elseif ($status === 'FAILED') {
             $fundRequest->status = 2; // failed
         }
- 
+
         $fundRequest->save();
 
          }
@@ -196,14 +279,14 @@ class FundRequestController extends Controller
 
 
     public function index(Request $request)
-    {   
-        
+    {
+
         $allmethods = FundRequestMethod::where('status',1)->get();
         return view('pages.fundrequest.create', [
             'methods'=>$allmethods,
         ]);
     }
-    
+
     ////////////////////////////////////////////////// ADD Fund Api Start /////////////////////////////////////////////////////////////////////////////////////
     public function addFundRequest(Request $request){
         if($request->user()->kyc_status == '0'){
@@ -215,12 +298,12 @@ class FundRequestController extends Controller
 
 
         }
-        
-        
-          $validator = Validator::make($request->all(),[  
+
+
+          $validator = Validator::make($request->all(),[
                 'amount' => ['required', 'numeric','min:100']
             ]);
-        
+
           if ($validator->fails()) {
                 $response = [
                     'success' => false,
@@ -229,15 +312,15 @@ class FundRequestController extends Controller
                 return response()->json($response, 200);
 
             }
-            
+
                     $amnt = $request->amount;
-                    
+
                     $tokenData = $this->generateToken();
-             
-               
+
+
                     if($tokenData['error'] == false){
-                        
-                 
+
+
                     $curl = curl_init();
 
                     curl_setopt_array($curl, array(
@@ -258,19 +341,19 @@ class FundRequestController extends Controller
                         'Authorization: Bearer  '.$tokenData['token']
                       ),
                     ));
-                    
+
                     $responses = curl_exec($curl);
 
                     curl_close($curl);
-     
-                        
+
+
                         $result = json_decode($responses,true);
-                        
+
                         if($result['status'] == 'INITIATED' && $result['statusCode'] == '0.0'){
-                            
+
                                $url =  $result['intentData'];
-                               
-                                
+
+
                                  DB::beginTransaction();
                                 try {
                                     //code...
@@ -279,13 +362,13 @@ class FundRequestController extends Controller
                                         'utr_number' => $result['txnId'],
                                         'fund_request_method_option_id' => 1,
                                         'fund_request_method_id' => 1,
-                                        'amount' => $amnt, 
+                                        'amount' => $amnt,
                                         'txs_status' => "pending",
                                         'status'  => 0
                                     ]);
 
-                                    
-                                     
+
+
                                     DB::commit();
                                      $response =[
                                               'status'=> true,
@@ -293,19 +376,19 @@ class FundRequestController extends Controller
                                               'transactionId'=> $result['txnId'],
                                               'message'=> 'Fund Request successful.'
                                             ];
-                        
+
                                 } catch (\Exception $e) {
                                     //throw $th;
                                     DB::rollBack();
-                                  
+
                                      $response =[
                                               'status'=> false,
                                               'error'=> $e,
                                               'message'=> 'Something wrong!'
                                             ];
-                        
-                                }       
-                                 
+
+                                }
+
         					}else{
         						 $response =[
                                   'status'=> false,
@@ -313,25 +396,25 @@ class FundRequestController extends Controller
                                   'message'=> 'Transaction failed!Please try after some time.'
                                 ];
         					}
-                            
+
                         }else{
                                 $response =[
                                   'status'=> false,
                                   'message'=> 'Token Expired!Please try after some time.'
                                 ];
                         }
-                       return response()->json($response, 200);   
+                       return response()->json($response, 200);
     }
-    
-    
+
+
     public function FetchFundData(Request $request){
-         
 
 
-          $validator = Validator::make($request->all(),[  
+
+          $validator = Validator::make($request->all(),[
                 'transaction_id' => ['required', 'string','exists:user_fund_requests,utr_number']
             ]);
-        
+
           if ($validator->fails()) {
                 $response = [
                     'success' => false,
@@ -340,9 +423,9 @@ class FundRequestController extends Controller
                 return response()->json($response, 200);
 
             }
-            
+
             $transaction_id = $request->transaction_id;
-                   
+
             $Exists = UserFundRequest::where('utr_number',$transaction_id)->first();
             if($Exists){
                     $response =[
@@ -350,7 +433,7 @@ class FundRequestController extends Controller
                       'data' =>$Exists,
                       'message'=> 'Transaction failed!Please try after some time.'
                     ];
-   
+
               }else{
                     $response =[
                       'status'=> false,
@@ -358,12 +441,12 @@ class FundRequestController extends Controller
                       'message'=> 'Transaction Id  not Match!'
                     ];
               }
-        return response()->json($response, 200);   
+        return response()->json($response, 200);
     }
-    
-    
-    
-    
+
+
+
+
     public function addFund(){
         if($request->user()->kyc_status == '0'){
             $res = [
@@ -374,7 +457,7 @@ class FundRequestController extends Controller
 
 
         }
-        
+
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
@@ -388,20 +471,20 @@ class FundRequestController extends Controller
           CURLOPT_CUSTOMREQUEST => 'POST',
           CURLOPT_POSTFIELDS => array('MerchantID' => '','MerchantKey' => '','MethodName' => 'paytransfer','orderId' => '5458454545465','vpa' => '7357378249@ybl','Name' => 'anilkumar','amount' => '1','MobileNo' => '9813538826','TransferType' => 'UPI'),
         ));
-        
+
         $response = json_decode(curl_exec($curl),true);
-        
+
         curl_close($curl);
         print_r($response);
-        
-        
+
+
     }
-    
-    
+
+
     public function generateToken(){
              $res['error'] = true;
               $curl = curl_init();
-    
+
                 curl_setopt_array($curl, array(
                   CURLOPT_URL => 'http://103.205.64.251:8080/clickncashapi/rest/auth/generateToken',
                   CURLOPT_RETURNTRANSFER => true,
@@ -419,25 +502,25 @@ class FundRequestController extends Controller
                     'Content-Type: application/json'
                   ),
                 ));
-            
+
             $response = json_decode(curl_exec($curl),true);
-            
+
             curl_close($curl);
-            
+
              if(empty($response['errors'])){
-                 
+
                  $res['error'] = false;
                  $res['token'] = $response['payload']['token'];
              }
-             
+
              return $res;
     }
-    
-    
-    
+
+
+
     public function  callBack_payIn(Request $request){
-        
-        
+
+
     //         $response_array = file_get_contents('php://input');
     // 		$response_array = json_decode($response_array);
 	        $agent_id = $request->txnId;
@@ -446,48 +529,48 @@ class FundRequestController extends Controller
             if($Exists){
               $amount =  $Exists->amount;
               if($Exists->status != 1 && $request->status == 'SUCCESS'){
-                  
+
                   $Exists->status = 1;
                   $Exists->txs_status = 'success';
                   $Exists->save();
                   Wallet::where('user_id',$Exists->user_id)->increment('main_wallet',$amount);
               }
-              
+
             }
-        
+
     }
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
     ////////////////////////////////////////////////// ADD Fund Api Start /////////////////////////////////////////////////////////////////////////////////////
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    public function options(Request $request) 
-    {   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public function options(Request $request)
+    {
         $methodId=$request->methodId;//"success";
         $data = FundRequestMethodOption::where('status',1)->where('fund_request_method_id',$methodId)->get();
         return response()->json($data, 200, []);
@@ -498,7 +581,7 @@ class FundRequestController extends Controller
     }
 
     public function store(Request $request): RedirectResponse
-    {   
+    {
         if($request->user()->kyc_status == '0'){
             $res = [
                 'success' => false,
@@ -507,16 +590,16 @@ class FundRequestController extends Controller
             return response()->json($res, 200);
 
 
-        } 
-        
-        $request->validate([             
-                        
-            'screenshot' => ['required','image','mimes:jpg,png,jpeg,gif,svg','max:1048'],            
-            'method' => ['required'],            
-            'option' => ['required'],            
-            'utr_number' => ['utr_number','unique:user_fund_requests'],            
-            'amount' => ['required','integer'],            
-        ]);     
+        }
+
+        $request->validate([
+
+            'screenshot' => ['required','image','mimes:jpg,png,jpeg,gif,svg','max:1048'],
+            'method' => ['required'],
+            'option' => ['required'],
+            'utr_number' => ['utr_number','unique:user_fund_requests'],
+            'amount' => ['required','integer'],
+        ]);
 
         $imageName = time().'.'.$request->screenshot->extension();
         $request->screenshot->move(storage_path('app/public/fundRequest/'),$imageName);
@@ -534,7 +617,7 @@ class FundRequestController extends Controller
                 'utr_number' => $utr_number,
                 'status'  => 0
             ]);
-             
+
             DB::commit();
             $request->session()->flash('status', 'Fund Request successful!');
 
@@ -543,7 +626,7 @@ class FundRequestController extends Controller
             DB::rollBack();
             $request->session()->flash('error', 'Something wrong!');
 
-        }       
+        }
 
         //Auth::login($user);
 
@@ -551,7 +634,7 @@ class FundRequestController extends Controller
     }
     ////////////////////////////////////////////////////////// Api Call //////////////////////////////////////////////////////////////
     public function history(Request $request)
-    {   
+    {
 
         $userId=Auth::user()->id;
         $dir = User::find($userId);
@@ -559,9 +642,9 @@ class FundRequestController extends Controller
             'user' => Auth::user(),
         ])->with('transactions',$dir->fundRequests);
     }
-    
+
     public function fund_request_details(){
-        
+
         $payament = PaymentMethod::all();
         if($payament){
                 $response =[
@@ -576,24 +659,24 @@ class FundRequestController extends Controller
                       'message'=> 'Fund Details Not Found!'
                     ];
         }
-       
+
         return response()->json($response, 200);
-        
+
     }
-    
-    
+
+
     public function fund_request(Request $request){
-        
 
 
-      
+
+
          $validator = Validator::make($request->all(),[
              'amount' => ['required', 'numeric'],
             'utr_number' => ['required', 'string','max:255','unique:user_fund_requests'],
             'slip_image' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'], // Added validation
         ]);
-        
-        
+
+
          if ($validator->fails()) {
             $response = [
                 'status' => false,
@@ -602,28 +685,40 @@ class FundRequestController extends Controller
             return response()->json($response, 200);
 
         }
-        
+
         $slipImageName = time() . '_slip.' . $request->slip_image->extension();
         $request->slip_image->storeAs('fundRequest', $slipImageName);
-        
-  
-        
+
+
+
         $utrNumber = $request->utr_number;
         $amount = $request->amount;
-        
+
          DB::beginTransaction();
         try {
             //code...
             UserFundRequest::create([
                 'user_id' => Auth::user()->id,
                 'utr_number' => $utrNumber,
+                'wallet' => $request->wallet_type,
                 // 'fund_request_method_option_id' => 1,
                 // 'fund_request_method_id' => 1,
                 'screenshot' => "app/private/fundRequest/".$slipImageName,
                 'amount' => $amount,
                 'status'  => 0
             ]);
-             
+
+             Transaction::create([
+                    'user_id' => Auth::user()->id,
+                    'wallet_type' => $request->wallet_type,
+                    'amount' =>$amount,
+                    'tx_type' => 'add_fund',
+                    'tx_id' => $utrNumber,
+                    'remark' =>  "Add Fund Request.",
+                    'status' =>  0,
+                    'type' =>  'credit',
+                ]);
+
             DB::commit();
              $response =[
                       'status'=> true,
@@ -634,34 +729,34 @@ class FundRequestController extends Controller
         } catch (\Exception $e) {
             //throw $th;
             DB::rollBack();
-            
+
              $response =[
                       'status'=> false,
                       'error'=> $e,
                       'message'=> 'Something wrong!'
                     ];
 
-        }       
-        
-       
+        }
+
+
         return response()->json($response, 200);
-        
+
     }
-    
-   
+
+
     public function fundHistory(Request $request){
             $user = $request->user();
             $page = $request->page;
-            
+
             // Retrieve fund requests for the user and order them by created_at in descending order
             $fundRequestsQuery = $user->fundRequests()->orderBy('created_at', 'desc');
-            
+
             // Paginate the results
             $perPage = 20;
             $page = $page ?: 1; // Use the requested page, default to 1 if not provided
-            
+
             $fundRequests = $fundRequestsQuery->paginate($perPage, ['*'], 'page', $page);
-            
+
             // Check if there are any fund requests
             if ($fundRequests->count() > 0) {
                 $response = [
@@ -686,28 +781,28 @@ class FundRequestController extends Controller
                     'message' => 'Fund requests not fetch!',
                 ];
             }
-            
+
             return response()->json($response, 200);
 
     }
-    
-    
-    ////////////////////////////////////// fund Gateway start //////////////////////////////////////////////////////////
-    
-    
-     public function fund_request_gateway(Request $request){
-        
 
-        
+
+    ////////////////////////////////////// fund Gateway start //////////////////////////////////////////////////////////
+
+
+     public function fund_request_gateway(Request $request){
+
+
+
 
         $validator = Validator::make($request->all(),[
-            'amount' => ['required', 'numeric'],  
-            'wallet_type' => ['required', 'string'],  
+            'amount' => ['required', 'numeric'],
+            'wallet_type' => ['required', 'string'],
         ]);
-        
-         
-        $amount = $request->amount; 
-        
+
+
+        $amount = $request->amount;
+
         if ($validator->fails()) {
             $response = [
                 'status' => false,
@@ -716,20 +811,20 @@ class FundRequestController extends Controller
             return response()->json($response, 200);
 
         }
-        
+
         $timestamp = now()->format('YmdHis'); // Current timestamp
         $randomString = Str::random(5); // Random string (adjust the length as needed)
 
-        $transactionId = $timestamp . $randomString; 
+        $transactionId = $timestamp . $randomString;
         $namne =$request->user()->name;
         $email =$request->user()->email;
         $mobile =$request->user()->mobile;
         $wallet_type =$request->wallet_type;
-                
-                 
+
+
         $decoded_msg = urlencode($namne);
-         
-        
+
+
         // $curl = curl_init();
 
         // curl_setopt_array($curl, array(
@@ -746,19 +841,19 @@ class FundRequestController extends Controller
         //     'Content-Type: application/x-www-form-urlencoded'
         //   ),
         // ));
-        
+
         // $responsed = json_decode(curl_exec($curl),true);
-        
+
         // curl_close($curl);
-        
-        
-        
-        
-        
-        
-        
-        
-        
+
+
+
+
+
+
+
+
+
             $curl = curl_init();
 
             curl_setopt_array($curl, array(
@@ -775,16 +870,16 @@ class FundRequestController extends Controller
                 'Content-Type: application/x-www-form-urlencoded'
               ),
             ));
-            
+
            $responsed = json_decode(curl_exec($curl),true);
-            
+
             curl_close($curl);
-         
+
         if($responsed['status'] == true){
-            
+
             $orderId = $responsed['data']['order_id'];
-            
-           
+
+
                 DB::beginTransaction();
                 try {
                     //code...
@@ -794,34 +889,34 @@ class FundRequestController extends Controller
                         'trans_Id' => $orderId,
                         'fund_request_method_option_id' => 1,
                         'fund_request_method_id' => 1,
-                        'amount' => $amount, 
-                        'wallet_type' => $wallet_type, 
+                        'amount' => $amount,
+                        'wallet_type' => $wallet_type,
                         'txs_status' => "pending",
                         'status'  => 0
                     ]);
-                   
-                   
-                   
-                  
+
+
+
+
                     DB::commit();
                      $response =[
                               'status'=> true,
                               'data'=> $responsed,
                               'message'=> 'Fund Request successful.'
                             ];
-        
+
                 } catch (\Exception $e) {
                     //throw $th;
                     DB::rollBack();
-                    
+
                      $response =[
                               'status'=> false,
                               'error'=> $e,
                               'message'=> 'Something wrong!'
                             ];
-        
-                }    
-            
+
+                }
+
         }else{
                 $msg = $responsed['msg'];
                 $response =[
@@ -830,21 +925,21 @@ class FundRequestController extends Controller
                   'message'=> $msg
                 ];
         }
-         
-         
-        
-       
+
+
+
+
         return response()->json($response, 200);
-        
+
     }
-    
-    
-    public function success(Request $request)
+
+
+    public function successOld(Request $request)
     {
          $txn_date = date('d-m-Y');
         $client_txn_id = $request->input('client_txn_id');
         $txn_id = $request->input('txn_id');
-        
+
         $curl = curl_init();
 
                 curl_setopt_array($curl, array(
@@ -861,36 +956,36 @@ class FundRequestController extends Controller
                     'Content-Type: application/x-www-form-urlencoded'
                   ),
                 ));
-                
+
                 $response = curl_exec($curl);
-                
+
                 curl_close($curl);
                 $result =  json_decode($response,true);
-                
+
                 if($result['data']['status'] =='success'){
                     $status = true;
                 }else{
                     $status = false;
                 }
-               
-             
+
+
         $Exists = UserFundRequest::where('trans_Id',$txn_id)->first();
         $user = [];
         if($Exists){
           $user =   User::find($Exists->user_id);
         }
-        
-            
-         
+
+
+
         return view('success',['result'=>$result,'user'=>$user]);
     }
-    
-    
+
+
     public function callBackFundRequest(Request $request){
-        
+
         $client_txn_id = $request->client_txn_id;
         $Exists = UserFundRequest::where('utr_number',$client_txn_id)->first();
-        if($Exists){ 
+        if($Exists){
             if($Exists->txs_status !='success' && $Exists->txs_status !='failure'){
                 $wallet = $Exists->wallet_type;
 
@@ -899,36 +994,36 @@ class FundRequestController extends Controller
                 $Exists->status = 1;
                 $Exists->txs_status = 'success';
                 $Exists->save();
-                Wallet::where('user_id',$userId)->increment($wallet,$amount); 
+                Wallet::where('user_id',$userId)->increment($wallet,$amount);
             }
-             
+
         }
         $test = Test::create([
                 'remark' => $client_txn_id,
                 'updated_at' => now(),
                 'created_at' => now(),
-        ]); 
+        ]);
     }
-    
+
     public function callback_gateway(Request $request){
                 $input = $request->all();
                 $saltKey = '1bcb474a-51a6-4bf0-b3b5-98e1e60c9ac6';
                 $saltIndex = 1;
-                $resdsult  = base64_decode($input['response']); 
+                $resdsult  = base64_decode($input['response']);
                  $test = Test::create([
                                 'remark' => $resdsult,
                                 'updated_at' => now(),
                                 'created_at' => now(),
-                    ]); 
-                $result = json_decode($resdsult,true);     
+                    ]);
+                $result = json_decode($resdsult,true);
                 if($result['success'] == true){
-                   
+
                       $transId = $result['data']['merchantTransactionId'];
                       $Exists = UserFundRequest::where('utr_number',$transId)->first();
                         if($Exists){
-                          
+
                           $finalXHeader = hash('sha256','/pg/v1/status/'.$result['data']['merchantId'].'/'.$result['data']['merchantTransactionId'].$saltKey).'###'.$saltIndex;
-    
+
                             //$response = Curl::to('https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/status/'.$result['data']['merchantId'].'/'.$result['data']['merchantTransactionId'])
                             $response = Curl::to('https://api.phonepe.com/apis/hermes/pg/v1/status/'.$result['data']['merchantId'].'/'.$result['data']['merchantTransactionId'])
                                 ->withHeader('Content-Type:application/json')
@@ -936,18 +1031,18 @@ class FundRequestController extends Controller
                                 ->withHeader('X-VERIFY:'.$finalXHeader)
                                 ->withHeader('X-MERCHANT-ID:'.$result['data']['merchantId'])
                                 ->get();
-                                
+
                                $res =  json_decode($response,true);
-                             
+
                             if($res['success'] == true){
-                                  
+
                                       if($res['code'] == 'PAYMENT_SUCCESS'){
-                                 
-                                         
+
+
                                              $amount = $res['data']['amount'];
-                                             $amnt = $amount/100; 
-                                      
-                                        
+                                             $amnt = $amount/100;
+
+
                                             if($Exists->txs_status != 'success' && $amnt == $Exists->amount){
                                                  $userId = $Exists->user_id;
                                                  $Exists->txs_status = Str::lower($res['data']['responseCode']);
@@ -957,34 +1052,34 @@ class FundRequestController extends Controller
                                             }else{
                                                 $Exists->txs_status = Str::lower($res['data']['responseCode']);
                                                 $Exists->save();
-                                            } 
+                                            }
                                          }else{
                                             $Exists->txs_status = Str::lower($res['data']['responseCode']);
                                             $Exists->save();
                                          }
-                                 
+
                                 }else{
                                     $Exists->txs_status = "failed";
                                     $Exists->save();
                                 }
-                        } 
-                       
+                        }
+
                     }else{
                         $transId = $result['data']['merchantTransactionId'];
                             // $test = Test::create([
                             //         'remark' => $transId,
                             //         'updated_at' => now(),
                             //         'created_at' => now(),
-                            // ]); 
+                            // ]);
                             $Exists = UserFundRequest::where('utr_number',$transId)->first();
-                            if($Exists){                   
-                             $Exists->txs_status = Str::lower($result['data']['responseCode']); 
-                             $Exists->save();                
+                            if($Exists){
+                             $Exists->txs_status = Str::lower($result['data']['responseCode']);
+                             $Exists->save();
                          }
-                    }  
+                    }
     }
-    
-    
+
+
     public function approveFundRequest(Request $request){
 
         if($request->user()->kyc_status == '0'){
@@ -996,18 +1091,18 @@ class FundRequestController extends Controller
 
 
         }
-        $validator = Validator::make($request->all(),[ 
+        $validator = Validator::make($request->all(),[
             'amount' => ['required', 'numeric'],
-            'utr_number' => ['required', 'string','max:255'], 
-            'status' => ['required', 'string','max:255'], 
+            'utr_number' => ['required', 'string','max:255'],
+            'status' => ['required', 'string','max:255'],
             ]);
-            
+
             if ($validator->fails()) {
                 $response = [
                     'status' => false,
                     'message' => $validator->errors()->first('utr_number')
                 ];
-                return response()->json($response, 200); 
+                return response()->json($response, 200);
             }
             $utrNumber = $request->utr_number;
             $status = $request->status;
@@ -1018,7 +1113,7 @@ class FundRequestController extends Controller
                  $Exists->txs_status = $status;
                  $Exists->status = 1;
                  $Exists->save();
-                 Wallet::where('user_id',$userId)->increment('fund_wallet',$amount); 
+                 Wallet::where('user_id',$userId)->increment('fund_wallet',$amount);
                     $response =[
                           'status'=> true,
                           'error'=> '',
@@ -1032,27 +1127,27 @@ class FundRequestController extends Controller
                     ];
             }
             return response()->json($response, 200);
-            
-    } 
-    
+
+    }
+
     public function userCancelled(Request $request){
-        
-        
-          $validator = Validator::make($request->all(),[ 
-            'utr_number' => ['required', 'string','max:255'], 
-            'amount' => ['required', 'string','max:255'], 
-            'utr_number' => ['required', 'string','max:255'], 
+
+
+          $validator = Validator::make($request->all(),[
+            'utr_number' => ['required', 'string','max:255'],
+            'amount' => ['required', 'string','max:255'],
+            'utr_number' => ['required', 'string','max:255'],
             ]);
-        
-        
+
+
             if ($validator->fails()) {
                 $response = [
                     'status' => false,
                     'message' => $validator->errors()->first('utr_number')
                 ];
-                return response()->json($response, 200); 
+                return response()->json($response, 200);
             }
-            
+
             $utrNumber = $request->utr_number;
             $Exists = UserFundRequest::where('utr_number',$utrNumber)->first();
             if($Exists){
@@ -1063,7 +1158,7 @@ class FundRequestController extends Controller
                   'error'=> '',
                   'message'=> 'Transaction Updated Successfully.'
                 ];
-                
+
             }else{
                 $response =[
                   'status'=> true,
@@ -1072,6 +1167,6 @@ class FundRequestController extends Controller
                 ];
             }
             return response()->json($response, 200);
-            
+
     }
 }

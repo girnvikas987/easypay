@@ -37,6 +37,7 @@ use App\Http\Controllers\GoldController;
 use App\Http\Controllers\LuckyDrawController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\TourController;
+use App\Http\Controllers\DonationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -49,7 +50,7 @@ use App\Http\Controllers\TourController;
 |
 */
 
-Route::post('fetch_referral', [BaseController::class, 'fetchReferral']);  
+Route::post('fetch_referral', [BaseController::class, 'fetchReferral']);
 Route::post('callBack_scanPay', [WithdrawalController::class, 'callBack_ScanPay']);
 Route::post('callBack_Payout', [WithdrawalController::class, 'callBack_Payout']);
 Route::post('callBack_click_Payout', [WithdrawalController::class, 'callBack_Click_Payout']);
@@ -61,6 +62,7 @@ Route::any('callback_fund', [FundRequestController::class, 'callBackFundRequest'
 Route::get('callback_recharge', [RechargeController::class, 'callback_recharge']);
 Route::get('meeting', [MeetingController::class, 'getMeeting']);
 Route::get('gallery', [GalleryController::class, 'getGallery']);
+Route::post('notification', [GalleryController::class, 'notify']);
 Route::post('generate_otp', [OtpController::class, 'generateOtp']);
 Route::post('forgot_password', [PasswordController::class, 'generateNewPassword']);
 Route::post('forgot_mpin', [PasswordController::class, 'generateNewMpin']);
@@ -90,11 +92,11 @@ Route::get('is_Ebike_eligible',function(){
 Route::get('is_recharge_trip_eligible',function(){
         return Distribute::IsRechargeTripEligible();
 });
- 
+
 Route::get('fetch_gold_live',function(){
         return Distribute::fetchgold();
 });
- 
+
 Route::get('Jack_pot_distribution',function(){
         return Distribute::JackpotDistribution();
 });
@@ -120,7 +122,7 @@ Route::get('ebike_daily_income',function(){
 Route::get('distrbute_ebike_binary_macth',function(){
         return Distribute::distrbuteEbikeBinaryMacth();
 });
- 
+
 Route::get('distrbute_ebike_binary_income',function(){
         return Distribute::distrbuteEbikeBinaryIncome();
 });
@@ -146,9 +148,9 @@ Route::get('clr_withdraw_request',function(){
         return Distribute::clrRequest();
 });
 Route::get('make_handle_callback', [FundRequestController::class, 'handle']);
- 
- 
- 
+
+
+ Route::post('/payment/handle_webhook', [FundRequestController::class, 'handlewebhook']);
 Route::get('call_recharge', [RechargeController::class, 'call_recharge']);
 Route::get('call_razorpay', [PaymentController::class, 'verify']);
 Route::middleware('auth:sanctum')->group(function () {
@@ -158,7 +160,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
 
-      
+
 
 
     /////////////////////////profile ///////////////////////////////////////////////
@@ -172,15 +174,17 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
 
- 
+
     /////////////////////////profile ///////////////////////////////////////////////
-    
+
     Route::post('get_active_packages', [DashboardController::class, 'getActivePackages']);
     Route::get('dashboard', [DashboardController::class, 'dashboard']);
     Route::post('check_pin', [DashboardController::class, 'checkPin']);
     Route::post('update_pin', [DashboardController::class, 'updatePin']);
     Route::get('test_dash', [DashboardController::class, 'test']);
-    
+    Route::get('get_sponsor_info', [DashboardController::class, 'getSponsorInfo']);
+    Route::get('get_videos', [DashboardController::class, 'getVideos']);
+
     /////////////////////////////investment ///////////////////////////////////////////////////////
     Route::post('topup', [InvestmentController::class, 'topup_api']);
     Route::get('packages', [InvestmentController::class, 'packages']);
@@ -195,25 +199,25 @@ Route::middleware('auth:sanctum')->group(function () {
      Route::get('saving_packages', [InvestmentController::class, 'saving_packages']);
     Route::post('take_saving', [InvestmentController::class, 'takeSavingFund']);
      /////////////////////////////Saving fund///////////////////////////////////////////////////////
-     
+
      /////////////////////////////Gold investment ///////////////////////////////////////////////////////
 
-     
+
      Route::get('gold_packages', [GoldController::class, 'packages']);
      Route::post('gold_packages_new', [GoldController::class, 'packagesNew']);
      Route::post('gold_topup', [GoldController::class, 'topup_api']);
      Route::post('get_gold_royalty', [GoldController::class, 'getGoldRoyalty']);
-     
 
-     
-     
+
+
+
      /////////////////////////////Gold investment ///////////////////////////////////////////////////////
 
 
     Route::post('transactions', [TransactionController::class, 'all_transactions']);
     Route::post('income_history', [TransactionController::class, 'incomeHistory']);
     Route::post('today_income', [TransactionController::class, 'todayIncomeHistory']);
-    
+
     //////////////////////////fund Requets .////////////////////////////////////////////////////
     Route::get('fund_data', [FundRequestController::class, 'fund_request_details']);
     Route::get('add_fund', [FundRequestController::class, 'addFund']);
@@ -226,15 +230,16 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     Route::post('make_request_order', [FundRequestController::class, 'makeOrder']);
-    
-    
+
+
     //////////////////////////fund Requets .////////////////////////////////////////////////////
-    
-    
+
+
     //////////////////////////////////////////////////////////////// Team /////////////////////////////////////////////////////////////////
     Route::post('team', [TeamController::class, 'getGeneration']);
-    Route::post('direct', [TeamController::class, 'getDirects']);
+    Route::post('direct', [TeamController::class, 'directs']);
      Route::post('team_history', [TeamController::class, 'getNewGeneration']);
+     Route::post('team_historywithfilter', [TeamController::class, 'getNewGenerationWithFilter']);
     //////////////////////////////////////////////////////////////// Team /////////////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////////// fund transfer /////////////////////////////////////////////////////////////////
@@ -251,7 +256,7 @@ Route::middleware('auth:sanctum')->group(function () {
     //////////////////////////////////////////////////////////////// Monthly Incentive  /////////////////////////////////////////////////////////////////
     Route::post('get_Month_Incentive', [RewardController::class, 'getMonthIncentive']);
     Route::post('get_loan', [RewardController::class, 'getLoan']);
-     
+
    //////////////////////////////////////////////////////////////// Monthly Incentive /////////////////////////////////////////////////////////////////
 
 
@@ -262,6 +267,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //////////////////////////////////////////////////////////////// kyc /////////////////////////////////////////////////////////////////
     Route::post('pan_kyc', [KycController::class, 'updatePanKyc']);
+    Route::post('nominee_kyc', [KycController::class, 'updateNomineeKyc']);
     Route::post('get_aadharotp', [KycController::class, 'getAadharOtp']);
     Route::post('aadhar_kyc', [KycController::class, 'updateAadharKyc']);
     Route::post('get_kyc', [KycController::class, 'getKycStatus']);
@@ -282,10 +288,7 @@ Route::middleware('auth:sanctum')->group(function () {
     //////////////////////////////////withdraw //////////////////////////////////////////////////////////////////
     Route::post('withdraw', [WithdrawalController::class, 'WithdrawAmnt']);
     Route::post('withdraw_history', [WithdrawalController::class, 'withdrawHistory']);
-    Route::post('withdraw_new_click', [WithdrawalController::class, 'WithdrawAmntNew']);
-    Route::post('scan_pay', [WithdrawalController::class, 'scanAndPay']);
-    Route::post('check_withdraw_status', [WithdrawalController::class, 'checkStatus']);
-    Route::post('withdraw_new', [WithdrawalController::class, 'WithdrawAmntGateway']);
+
     //////////////////////////////////withdraw //////////////////////////////////////////////////////////////////
 
 
@@ -302,31 +305,31 @@ Route::middleware('auth:sanctum')->group(function () {
     ////////////////////////////////////////////////////razorpay payment add fund start ////////////////////////////
     Route::post('order_make', [PaymentController::class, 'createOrder']);
     Route::post('update_order', [PaymentController::class, 'updateOrder']);
-    
+
     ////////////////////////////////////////////////////razorpay payment add fund end ////////////////////////////
 
 
 
 
     /////////////////Recharge APi Strat ///////////////////////////////////
-    
+
         //////////////Recharge investment///////////////////////
     Route::get('get_recharge_package', [RechargeController::class, 'packages']);
     Route::post('buy_recharge_package', [RechargeController::class, 'buyPackage']);
     Route::post('get_recharge_royalty', [RechargeController::class, 'getRechargeRoyalty']);
     Route::post('get_recharge_tour', [RechargeController::class, 'getRechargeTour']);
-    
-    
+
+
          //////////////Recharge investment///////////////////////
-    // Route::get('operators', [RechargeController::class, 'getOpeator']);
-    Route::post('get_opera0tors', [RechargeController::class, 'getOperatorData']);
+    Route::post('operators', [RechargeController::class, 'fetchAndSaveOperators']);
+    Route::post('get_operators', [RechargeController::class, 'getOperatorData']);
     // Route::get('get_circles', [RechargeController::class, 'getCircleData']);
      Route::post('recharge_request', [RechargeController::class, 'rechargeRequest']);
    Route::post('view_plan', [RechargeController::class, 'viewPlan']);
-    // Route::post('fetch_bill', [RechargeController::class, 'fetchBill']);
+     Route::post('fetch_bill', [RechargeController::class, 'fetch_bill']);
     // Route::post('fetch_bill_info', [RechargeController::class, 'fetchfBillinfo']);
     // Route::post('fetch_bill_info_check', [RechargeController::class, 'fetchfBillinfoCheck']);
-    // Route::post('recharge_history', [RechargeController::class, 'rechargeHistory']);
+      Route::post('recharge_history', [RechargeController::class, 'rechargeHistory']);
     // Route::post('bbps_pay', [RechargeController::class, 'BBPSBillPay']);
     // Route::post('fastag', [RechargeController::class, 'fetchBillFastag']);
     // Route::post('fetch_request', [RechargeController::class, 'fetchBillRequest']);
@@ -346,106 +349,107 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     /////////////////////////////////new api Recharge route ambikamultiservices ///////////////////////////////////////////////////////////////
-    
-    
+
+
     /////////////////////////////////new api Recharge route ambikamultiservices ///////////////////////////////////////////////////////////////
-    
+
     Route::post('recharge_req', [RechargeController::class, 'rechargeReq']);
     Route::post('get_operator', [RechargeController::class, 'getOperator']);
     Route::post('fetch_bills', [RechargeController::class, 'fetchFill']);
     Route::post('fetch_dth_info', [RechargeController::class, 'fetchDTHinfo']);
-    
+
+
     /////////////////////////////// bus api ///////////////////////////////////////////////////////////////////////////////////////////////
      Route::post('get_source', [RechargeController::class, 'GetSourceList']);
      Route::post('get_destination', [RechargeController::class, 'GetDestinationList']);
-    
+
     /////////////////////////////// bus api ///////////////////////////////////////////////////////////////////////////////////////////////
-    
-    
-    
+
+
+
     /////////////////////////////// Hotel api ///////////////////////////////////////////////////////////////////////////////////////////////
-    
+
     Route::get('hotel_availability', [RechargeController::class, 'hotelAvailability']);
     Route::get('city_search', [RechargeController::class, 'citySearch']);
-    
-    
+
+
     /////////////////////////////// Hotel api ///////////////////////////////////////////////////////////////////////////////////////////////
-    
-    
-    
-    
+
+
+
+
     /////////////////////////////////new api Recharge route ambikamultiservices ///////////////////////////////////////////////////////////////
-    
-    
-    
+
+
+
      Route::post('add_fund_request', [FundRequestController::class, 'addFundRequest']);
      Route::post('fetch_fund_data', [FundRequestController::class, 'FetchFundData']);
-     
-    
+
+
     /////////////////////////////////new api game route  ///////////////////////////////////////////////////////////////
-    
-    
-    
+
+
+
      Route::post('game', [GameController::class, 'index']);
      Route::post('play_game', [GameController::class, 'joinGame']);
      Route::post('get_participates', [GameController::class, 'getParticipateList']);
      Route::post('get_wins', [GameController::class, 'getWinsList']);
      Route::post('get_wins_new', [GameController::class, 'getWinsList2']);
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
     /////////////////////////////////new api game route  ///////////////////////////////////////////////////////////////
-    
-    
-    
-    
-    
+
+
+
+
+
        /////////////////////////////////Loan Api ///////////////////////////////////////////////////////////////
        Route::get('get_loans_pkg', [LoanController::class, 'getPackage']);
        Route::get('get_loans_list', [LoanController::class, 'list']);
        Route::post('loan_investment', [LoanController::class, 'buyPackage']);
        Route::post('approve_loan', [LoanController::class, 'approveLoan']);
-       Route::post('paid_Loan', [LoanController::class, 'paidLoan']); 
-       
-       
-       
-       
+       Route::post('paid_Loan', [LoanController::class, 'paidLoan']);
+
+
+
+
        /////////////////////////////////Loan Api ///////////////////////////////////////////////////////////////
-    
-    
-    
+
+
+
     /////////////////////////////////////E-Bike Apis start ////////////////////////////////////////////////////////////
-    
+
     Route::get('get_ebike_pkg', [EbikeController::class, 'getPackage']);
     Route::post('ebike_invest', [EbikeController::class, 'buyPackage']);
     Route::post('get_royalty', [EbikeController::class, 'getRoyalty']);
     Route::post('bike_income_history', [EbikeController::class, 'EbikeCommissionHistory']);
-    
-    
-    
-    
-    
+
+
+
+
+
     /////////////////////////////////////E-Bike Apis end ////////////////////////////////////////////////////////////
-    
+
     /////////////////////////////////////Elite Apis start ////////////////////////////////////////////////////////////
-    
+
     Route::get('get_elite_pkg', [EliteController::class, 'getPackage']);
     Route::post('elite_invest', [EliteController::class, 'buyPackage']);
     Route::post('left_rigth_data', [EliteController::class, 'leftRigthData']);
 //     Route::post('get_royalty', [EbikeController::class, 'getRoyalty']);
 //     Route::post('bike_income_history', [EbikeController::class, 'EbikeCommissionHistory']);
-    
-    
-    
-    
-    
+
+
+
+
+
     /////////////////////////////////////Elite Apis end ////////////////////////////////////////////////////////////
 
     /////////////////////////////////////fly Apis start ////////////////////////////////////////////////////////////
-    
+
     Route::get('get_fly_pkg', [FlyController::class, 'getPackage']);
     Route::post('fly_invest', [FlyController::class, 'buyPackage']);
     Route::post('fly_ticket', [FlyController::class, 'flyTicket']);
@@ -453,31 +457,31 @@ Route::middleware('auth:sanctum')->group(function () {
 //     Route::post('left_rigth_data', [FlyController::class, 'leftRigthData']);
 //     Route::post('get_royalty', [EbikeController::class, 'getRoyalty']);
 //     Route::post('bike_income_history', [EbikeController::class, 'EbikeCommissionHistory']);
-    
-    
-    
-    
-    
+
+
+
+
+
     /////////////////////////////////////Elite Apis end ////////////////////////////////////////////////////////////
-    
+
     /////////////////////////////////////Tour Apis start ////////////////////////////////////////////////////////////
-    
+
     Route::get('get_tour_pkg', [TourController::class, 'getPackage']);
     Route::post('tour_invest', [TourController::class, 'buyPackage']);
 //     Route::post('bike_income_history', [TourController::class, 'EbikeCommissionHistory']);
-    
-    
-    
-    
-    
+
+
+
+
+
     /////////////////////////////////////Tour Apis end ////////////////////////////////////////////////////////////
-    
-    
-    
-   
-    
+
+
+
+
+
     /////////////////Recharge APi End ///////////////////////////////////
-    
+
     ////////////////////////////E-commerce //////////////////////////////////
     Route::post('get_product', [ProductController::class, 'getProduct']);
     Route::post('add_to_cart', [ProductController::class, 'addToCart']);
@@ -488,21 +492,26 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('get_address', [ProductController::class, 'getAddress']);
     Route::post('take_order', [ProductController::class, 'placeOrder']);
     Route::post('order_history', [ProductController::class, 'orderHistory']);
-    
-    
+
+
     ////////////////////////////E-commerce //////////////////////////////////
-    
-    
+
+    ////////////////////////////Doantion //////////////////////////////////
+    Route::get('donation', [DonationController::class, 'index']);
+    Route::post('donate', [DonationController::class, 'store']);
+    ////////////////////////////Doantion //////////////////////////////////
+
+
     ///////////////////////////Buy Sell APi /////////////////////////////////
-    
+
     Route::post('/buy_btc', [BuySellController::class, 'buyBtc']);
     Route::post('/get_price', [BuySellController::class, 'getPrice']);
     Route::post('/sell_btc', [BuySellController::class, 'sellBtc']);
     Route::post('/buy_gold', [BuySellController::class, 'buyGold']);
     Route::post('/sell_gold', [BuySellController::class, 'sellGold']);
     ///////////////////////////Buy Sell APi /////////////////////////////////
-    
-    
+
+
     //////////////////////////Lucky Draw ///////////////////////////////////
     Route::post('/fetch_lucky_draw', [LuckyDrawController::class, 'paidLuckyDraw']);
     Route::post('/join_lucky_draw', [LuckyDrawController::class, 'joinLuckyDraw']);
@@ -521,9 +530,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/get_all_wins', [LuckyDrawController::class, 'getDrawWins']);
     Route::post('/get_jackpot_wins', [LuckyDrawController::class, 'getJackpotWins']);
     Route::post('/get_wins_spinner', [LuckyDrawController::class, 'getWinsSpinner']);
-    
+
     //////////////////////////Lucky Draw ///////////////////////////////////
-    
+
 });
 // Route::get('/payment-success', [FundRequestController::class, 'success'])->name('success');
 // Route::get('/payment-success', function () {
@@ -540,10 +549,10 @@ Route::controller(AuthController::class)->group(function() {
     Route::post('validate_mobile','validateUser');
     Route::post('verify_account','verifyAccount');
     Route::post('verify_pan','verifyPan');
-    Route::post('testing','test'); 
-    Route::post('otp_genrate_w','sendOtpnew'); 
-    Route::post('otp_genrate_what','sendOtpWhatsapp'); 
-    Route::get('check_voice','checkVoice'); 
+    Route::post('testing','test');
+    Route::post('otp_genrate_w','sendOtpnew');
+    Route::post('otp_genrate_what','sendOtpWhatsapp');
+    Route::get('check_voice','checkVoice');
 });
 
 // Route::middleware('auth:sanctum')->post('/email/send-verification', [EmailVerificationController::class, 'sendVerificationEmail']);
