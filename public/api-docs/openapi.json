@@ -1,0 +1,1511 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "EasyDigiPays API",
+    "description": "Complete API documentation for EasyDigiPays - Mobile Recharge, Investment & MLM Platform",
+    "version": "1.0.0",
+    "contact": {
+      "name": "EasyDigiPays Support",
+      "email": "easydigi@gmail.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "/api",
+      "description": "Current Server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Sanctum Token"
+      }
+    },
+    "schemas": {
+      "SuccessResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": true },
+          "data": { "type": "object" },
+          "message": { "type": "string" }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": false },
+          "data": { "type": "string", "example": "" },
+          "message": { "type": "string" }
+        }
+      }
+    }
+  },
+  "tags": [
+    { "name": "Authentication", "description": "Login, Register, OTP & Verification" },
+    { "name": "Profile", "description": "User profile management" },
+    { "name": "Dashboard", "description": "Dashboard data & settings" },
+    { "name": "Investment", "description": "Package investment & history" },
+    { "name": "Gold Investment", "description": "Gold package investment" },
+    { "name": "Transactions", "description": "Transaction & income history" },
+    { "name": "Fund Request", "description": "Fund deposit requests" },
+    { "name": "Team", "description": "Team & generation data" },
+    { "name": "Fund Transfer", "description": "Wallet fund transfer & convert" },
+    { "name": "Rewards", "description": "Rewards & incentives" },
+    { "name": "Password", "description": "Password & MPIN management" },
+    { "name": "KYC", "description": "Know Your Customer verification" },
+    { "name": "Bank", "description": "Bank account management" },
+    { "name": "Withdrawal", "description": "Withdrawal requests" },
+    { "name": "Recharge Operations", "description": "Mobile/DTH recharge & bill payments" },
+    { "name": "Recharge Investment", "description": "Recharge package investment" },
+    { "name": "Payment Gateway", "description": "Razorpay payment integration" },
+    { "name": "Games", "description": "Game participation & results" },
+    { "name": "Loans", "description": "Loan packages & management" },
+    { "name": "E-Bike", "description": "E-Bike investment packages" },
+    { "name": "Elite", "description": "Elite investment packages" },
+    { "name": "Fly", "description": "Fly investment packages" },
+    { "name": "Tour", "description": "Tour investment packages" },
+    { "name": "E-Commerce", "description": "Products, cart & orders" },
+    { "name": "Donation", "description": "Donation management" },
+    { "name": "Buy/Sell", "description": "BTC & Gold trading" },
+    { "name": "Lucky Draw", "description": "Lucky draw & spinner games" },
+    { "name": "Utility", "description": "Meeting, gallery, notifications & app version" },
+    { "name": "Webhooks", "description": "Payment & recharge callback endpoints" }
+  ],
+  "paths": {
+    "/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "User Login",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["mobile", "password"],
+                "properties": {
+                  "mobile": { "type": "string", "example": "9876543210" },
+                  "password": { "type": "string", "example": "password123" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Login successful - returns token & user info" },
+          "401": { "description": "Invalid credentials" }
+        }
+      }
+    },
+    "/register": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "User Registration",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "email", "mobile", "password", "referral_code"],
+                "properties": {
+                  "name": { "type": "string", "example": "John Doe" },
+                  "email": { "type": "string", "example": "john@example.com" },
+                  "mobile": { "type": "string", "example": "9876543210" },
+                  "password": { "type": "string", "example": "password123" },
+                  "referral_code": { "type": "string", "example": "EDP801280" },
+                  "position": { "type": "string", "example": "left" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Registration successful - returns token & user info" }
+        }
+      }
+    },
+    "/register_new": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "New User Registration (alternate)",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "name": { "type": "string" }, "email": { "type": "string" }, "mobile": { "type": "string" }, "password": { "type": "string" }, "referral_code": { "type": "string" }, "position": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Registration successful" } }
+      }
+    },
+    "/simple_register": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Simple Registration",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "name": { "type": "string" }, "email": { "type": "string" }, "mobile": { "type": "string" }, "password": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Registration successful" } }
+      }
+    },
+    "/validate_register_new": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Validate Registration Data",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "mobile": { "type": "string" }, "email": { "type": "string" }, "referral_code": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Validation result" } }
+      }
+    },
+    "/otp_genrate": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Generate OTP",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["mobile"], "properties": { "mobile": { "type": "string", "example": "9876543210" } } } } } },
+        "responses": { "200": { "description": "OTP sent successfully" } }
+      }
+    },
+    "/otp_genrate_w": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Generate OTP (New)",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "mobile": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "OTP sent" } }
+      }
+    },
+    "/otp_genrate_what": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Generate OTP via WhatsApp",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "mobile": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "OTP sent via WhatsApp" } }
+      }
+    },
+    "/validate_mobile": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Validate Mobile Number",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "mobile": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Validation result" } }
+      }
+    },
+    "/verify_account": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Verify User Account",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "mobile": { "type": "string" }, "otp": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Account verified" } }
+      }
+    },
+    "/verify_pan": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Verify PAN Card",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "pan_number": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "PAN verification result" } }
+      }
+    },
+    "/check_voice": {
+      "get": {
+        "tags": ["Authentication"],
+        "summary": "Check Voice Service",
+        "responses": { "200": { "description": "Voice service status" } }
+      }
+    },
+    "/testing": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Test Endpoint",
+        "responses": { "200": { "description": "Test response" } }
+      }
+    },
+    "/update_profile": {
+      "post": {
+        "tags": ["Profile"],
+        "summary": "Update User Profile",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "name": { "type": "string" }, "email": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Profile updated" } }
+      }
+    },
+    "/user": {
+      "get": {
+        "tags": ["Profile"],
+        "summary": "Get User Data",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "User data" } }
+      }
+    },
+    "/validateUser": {
+      "post": {
+        "tags": ["Profile"],
+        "summary": "Validate User",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "username": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "User validation result" } }
+      }
+    },
+    "/upload_image": {
+      "post": {
+        "tags": ["Profile"],
+        "summary": "Upload Profile Image",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "multipart/form-data": { "schema": { "type": "object", "properties": { "image": { "type": "string", "format": "binary" } } } } } },
+        "responses": { "200": { "description": "Image uploaded" } }
+      }
+    },
+    "/verify_both_Otp": {
+      "post": {
+        "tags": ["Profile"],
+        "summary": "Verify Both OTPs",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "otp": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "OTP verified" } }
+      }
+    },
+    "/verify_pan_details": {
+      "post": {
+        "tags": ["Profile"],
+        "summary": "Verify PAN Details",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "pan_number": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "PAN verified" } }
+      }
+    },
+    "/update_user_details": {
+      "post": {
+        "tags": ["Profile"],
+        "summary": "Update User Details",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "name": { "type": "string" }, "email": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Details updated" } }
+      }
+    },
+    "/dashboard": {
+      "get": {
+        "tags": ["Dashboard"],
+        "summary": "Get Dashboard Data",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Dashboard data with wallets, incomes, team stats" } }
+      }
+    },
+    "/get_active_packages": {
+      "post": {
+        "tags": ["Dashboard"],
+        "summary": "Get Active Packages",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "List of active packages" } }
+      }
+    },
+    "/check_pin": {
+      "post": {
+        "tags": ["Dashboard"],
+        "summary": "Verify Transaction PIN",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["pin"], "properties": { "pin": { "type": "string", "example": "1234" } } } } } },
+        "responses": { "200": { "description": "PIN verification result" } }
+      }
+    },
+    "/update_pin": {
+      "post": {
+        "tags": ["Dashboard"],
+        "summary": "Update Transaction PIN",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "old_pin": { "type": "string" }, "new_pin": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "PIN updated" } }
+      }
+    },
+    "/get_sponsor_info": {
+      "get": {
+        "tags": ["Dashboard"],
+        "summary": "Get Sponsor Information",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Sponsor info" } }
+      }
+    },
+    "/get_videos": {
+      "get": {
+        "tags": ["Dashboard"],
+        "summary": "Get Training Videos",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Video list" } }
+      }
+    },
+    "/packages": {
+      "get": {
+        "tags": ["Investment"],
+        "summary": "Get Investment Packages",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Available packages" } }
+      }
+    },
+    "/topup": {
+      "post": {
+        "tags": ["Investment"],
+        "summary": "Top Up / Invest in Package",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["package_id", "amount", "pin"], "properties": { "package_id": { "type": "integer" }, "amount": { "type": "number" }, "pin": { "type": "string" }, "username": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Investment successful" } }
+      }
+    },
+    "/invest_history": {
+      "post": {
+        "tags": ["Investment"],
+        "summary": "Get Investment History",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "page": { "type": "integer" }, "from_date": { "type": "string" }, "to_date": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Investment history" } }
+      }
+    },
+    "/package_details": {
+      "post": {
+        "tags": ["Investment"],
+        "summary": "Get Package Details",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "package_id": { "type": "integer" } } } } } },
+        "responses": { "200": { "description": "Package details" } }
+      }
+    },
+    "/commitee_packages": {
+      "get": {
+        "tags": ["Investment"],
+        "summary": "Get Committee Packages",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Committee packages list" } }
+      }
+    },
+    "/take_commitee": {
+      "post": {
+        "tags": ["Investment"],
+        "summary": "Join Committee Package",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "package_id": { "type": "integer" }, "amount": { "type": "number" }, "pin": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Committee joined" } }
+      }
+    },
+    "/saving_packages": {
+      "get": {
+        "tags": ["Investment"],
+        "summary": "Get Saving Fund Packages",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Saving packages list" } }
+      }
+    },
+    "/take_saving": {
+      "post": {
+        "tags": ["Investment"],
+        "summary": "Invest in Saving Fund",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "package_id": { "type": "integer" }, "amount": { "type": "number" }, "pin": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Saving fund investment done" } }
+      }
+    },
+    "/gold_packages": {
+      "get": {
+        "tags": ["Gold Investment"],
+        "summary": "Get Gold Packages",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Gold packages list" } }
+      }
+    },
+    "/gold_packages_new": {
+      "post": {
+        "tags": ["Gold Investment"],
+        "summary": "Get Gold Packages (New)",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Gold packages" } }
+      }
+    },
+    "/gold_topup": {
+      "post": {
+        "tags": ["Gold Investment"],
+        "summary": "Invest in Gold Package",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "package_id": { "type": "integer" }, "amount": { "type": "number" }, "pin": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Gold investment done" } }
+      }
+    },
+    "/get_gold_royalty": {
+      "post": {
+        "tags": ["Gold Investment"],
+        "summary": "Get Gold Royalty Data",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Gold royalty info" } }
+      }
+    },
+    "/transactions": {
+      "post": {
+        "tags": ["Transactions"],
+        "summary": "Get All Transactions",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "page": { "type": "integer" }, "from_date": { "type": "string" }, "to_date": { "type": "string" }, "type": { "type": "string", "enum": ["credit", "debit"] }, "wallet": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Transaction list" } }
+      }
+    },
+    "/income_history": {
+      "post": {
+        "tags": ["Transactions"],
+        "summary": "Get Income History",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "page": { "type": "integer" }, "from_date": { "type": "string" }, "to_date": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Income history" } }
+      }
+    },
+    "/today_income": {
+      "post": {
+        "tags": ["Transactions"],
+        "summary": "Get Today's Income",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Today's income data" } }
+      }
+    },
+    "/fund_data": {
+      "get": {
+        "tags": ["Fund Request"],
+        "summary": "Get Fund Request Details & Methods",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Fund request methods and options" } }
+      }
+    },
+    "/add_fund": {
+      "get": {
+        "tags": ["Fund Request"],
+        "summary": "Get Add Fund Page Data",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Fund adding options" } }
+      }
+    },
+    "/fund_request": {
+      "post": {
+        "tags": ["Fund Request"],
+        "summary": "Submit Fund Request",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "amount": { "type": "number" }, "method_id": { "type": "integer" }, "utr_number": { "type": "string" }, "screenshot": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Fund request submitted" } }
+      }
+    },
+    "/fund_request_gateway": {
+      "post": {
+        "tags": ["Fund Request"],
+        "summary": "Fund Request via Payment Gateway",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "amount": { "type": "number" }, "wallet": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Payment gateway URL" } }
+      }
+    },
+    "/fund_history": {
+      "post": {
+        "tags": ["Fund Request"],
+        "summary": "Get Fund Request History",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "page": { "type": "integer" } } } } } },
+        "responses": { "200": { "description": "Fund history" } }
+      }
+    },
+    "/fund_request_simple": {
+      "post": {
+        "tags": ["Fund Request"],
+        "summary": "Simple Fund Request",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "amount": { "type": "number" }, "wallet": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Fund request created" } }
+      }
+    },
+    "/make_request_order": {
+      "post": {
+        "tags": ["Fund Request"],
+        "summary": "Make Fund Request Order",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "amount": { "type": "number" } } } } } },
+        "responses": { "200": { "description": "Order created" } }
+      }
+    },
+    "/fetch_fund_data": {
+      "post": {
+        "tags": ["Fund Request"],
+        "summary": "Fetch Fund Data",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Fund data fetched" } }
+      }
+    },
+    "/team": {
+      "post": {
+        "tags": ["Team"],
+        "summary": "Get Team Generation Tree",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "level": { "type": "integer" } } } } } },
+        "responses": { "200": { "description": "Team generation data" } }
+      }
+    },
+    "/direct": {
+      "post": {
+        "tags": ["Team"],
+        "summary": "Get Direct Referrals",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Direct referral list" } }
+      }
+    },
+    "/team_history": {
+      "post": {
+        "tags": ["Team"],
+        "summary": "Get Team History",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "page": { "type": "integer" } } } } } },
+        "responses": { "200": { "description": "Team history" } }
+      }
+    },
+    "/team_historywithfilter": {
+      "post": {
+        "tags": ["Team"],
+        "summary": "Get Team History with Filter",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "page": { "type": "integer" }, "level": { "type": "integer" }, "status": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Filtered team history" } }
+      }
+    },
+    "/fund_convert": {
+      "post": {
+        "tags": ["Fund Transfer"],
+        "summary": "Convert Funds Between Wallets",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["amount", "from_wallet", "to_wallet", "pin"], "properties": { "amount": { "type": "number" }, "from_wallet": { "type": "string" }, "to_wallet": { "type": "string" }, "pin": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Fund converted" } }
+      }
+    },
+    "/fund_transfer": {
+      "post": {
+        "tags": ["Fund Transfer"],
+        "summary": "Transfer Funds to Another User",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["amount", "username", "wallet", "pin"], "properties": { "amount": { "type": "number" }, "username": { "type": "string" }, "wallet": { "type": "string" }, "pin": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Fund transferred" } }
+      }
+    },
+    "/get_reward": {
+      "post": {
+        "tags": ["Rewards"],
+        "summary": "Get Reward Data",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Reward data" } }
+      }
+    },
+    "/get_Month_Incentive": {
+      "post": {
+        "tags": ["Rewards"],
+        "summary": "Get Monthly Incentive",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Monthly incentive data" } }
+      }
+    },
+    "/get_loan": {
+      "post": {
+        "tags": ["Rewards"],
+        "summary": "Get Loan Reward Data",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Loan reward info" } }
+      }
+    },
+    "/change_password": {
+      "post": {
+        "tags": ["Password"],
+        "summary": "Change Password",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["old_password", "new_password"], "properties": { "old_password": { "type": "string" }, "new_password": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Password changed" } }
+      }
+    },
+    "/forgot_password": {
+      "post": {
+        "tags": ["Password"],
+        "summary": "Forgot Password",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["mobile"], "properties": { "mobile": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "New password sent" } }
+      }
+    },
+    "/forgot_mpin": {
+      "post": {
+        "tags": ["Password"],
+        "summary": "Forgot MPIN",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["mobile"], "properties": { "mobile": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "New MPIN sent" } }
+      }
+    },
+    "/pan_kyc": {
+      "post": {
+        "tags": ["KYC"],
+        "summary": "Update PAN KYC",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "pan_number": { "type": "string" }, "pan_image": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "PAN KYC updated" } }
+      }
+    },
+    "/nominee_kyc": {
+      "post": {
+        "tags": ["KYC"],
+        "summary": "Update Nominee KYC",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "nominee_name": { "type": "string" }, "nominee_relation": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Nominee KYC updated" } }
+      }
+    },
+    "/get_aadharotp": {
+      "post": {
+        "tags": ["KYC"],
+        "summary": "Get Aadhaar OTP",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "aadhar_number": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Aadhaar OTP sent" } }
+      }
+    },
+    "/aadhar_kyc": {
+      "post": {
+        "tags": ["KYC"],
+        "summary": "Update Aadhaar KYC",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "aadhar_number": { "type": "string" }, "otp": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Aadhaar KYC updated" } }
+      }
+    },
+    "/get_kyc": {
+      "post": {
+        "tags": ["KYC"],
+        "summary": "Get KYC Status",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "KYC status" } }
+      }
+    },
+    "/get_kyc_data": {
+      "post": {
+        "tags": ["KYC"],
+        "summary": "Get KYC Data",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Full KYC data" } }
+      }
+    },
+    "/add_bank": {
+      "post": {
+        "tags": ["Bank"],
+        "summary": "Add/Update Bank Details",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "bank_name": { "type": "string" }, "account_number": { "type": "string" }, "ifsc_code": { "type": "string" }, "account_holder": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Bank details saved" } }
+      }
+    },
+    "/get_bank": {
+      "post": {
+        "tags": ["Bank"],
+        "summary": "Get Bank Details",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Bank details" } }
+      }
+    },
+    "/get_kyc_details": {
+      "post": {
+        "tags": ["Bank"],
+        "summary": "Get KYC & Bank Details",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "KYC and bank data" } }
+      }
+    },
+    "/delete_bank_details": {
+      "post": {
+        "tags": ["Bank"],
+        "summary": "Delete Bank Details",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "bank_id": { "type": "integer" } } } } } },
+        "responses": { "200": { "description": "Bank details deleted" } }
+      }
+    },
+    "/withdraw": {
+      "post": {
+        "tags": ["Withdrawal"],
+        "summary": "Request Withdrawal",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["amount", "pin"], "properties": { "amount": { "type": "number" }, "pin": { "type": "string" }, "wallet": { "type": "string" }, "bank_id": { "type": "integer" } } } } } },
+        "responses": { "200": { "description": "Withdrawal requested" } }
+      }
+    },
+    "/withdraw_history": {
+      "post": {
+        "tags": ["Withdrawal"],
+        "summary": "Get Withdrawal History",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "page": { "type": "integer" } } } } } },
+        "responses": { "200": { "description": "Withdrawal history" } }
+      }
+    },
+    "/get_recharge_package": {
+      "get": {
+        "tags": ["Recharge Investment"],
+        "summary": "Get Recharge Packages",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Recharge packages list" } }
+      }
+    },
+    "/buy_recharge_package": {
+      "post": {
+        "tags": ["Recharge Investment"],
+        "summary": "Buy Recharge Package",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "package_id": { "type": "integer" }, "amount": { "type": "number" }, "pin": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Package purchased" } }
+      }
+    },
+    "/get_recharge_royalty": {
+      "post": {
+        "tags": ["Recharge Investment"],
+        "summary": "Get Recharge Royalty",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Recharge royalty data" } }
+      }
+    },
+    "/get_recharge_tour": {
+      "post": {
+        "tags": ["Recharge Investment"],
+        "summary": "Get Recharge Tour Data",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Recharge tour info" } }
+      }
+    },
+    "/operators": {
+      "post": {
+        "tags": ["Recharge Operations"],
+        "summary": "Fetch & Save Operators",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Operators fetched" } }
+      }
+    },
+    "/get_operators": {
+      "post": {
+        "tags": ["Recharge Operations"],
+        "summary": "Get Operator Data",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "type": { "type": "string", "enum": ["mobile", "dth", "electricity", "gas"] } } } } } },
+        "responses": { "200": { "description": "Operator list" } }
+      }
+    },
+    "/recharge_request": {
+      "post": {
+        "tags": ["Recharge Operations"],
+        "summary": "Submit Recharge Request",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["mobile", "operator", "amount"], "properties": { "mobile": { "type": "string" }, "operator": { "type": "string" }, "amount": { "type": "number" }, "pin": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Recharge submitted" } }
+      }
+    },
+    "/view_plan": {
+      "post": {
+        "tags": ["Recharge Operations"],
+        "summary": "View Mobile Plans",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "mobile": { "type": "string" }, "operator": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Available plans" } }
+      }
+    },
+    "/fetch_bill": {
+      "post": {
+        "tags": ["Recharge Operations"],
+        "summary": "Fetch Bill Details",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "number": { "type": "string" }, "operator": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Bill details" } }
+      }
+    },
+    "/recharge_history": {
+      "post": {
+        "tags": ["Recharge Operations"],
+        "summary": "Get Recharge History",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "page": { "type": "integer" } } } } } },
+        "responses": { "200": { "description": "Recharge history" } }
+      }
+    },
+    "/bill_verify": {
+      "post": {
+        "tags": ["Recharge Operations"],
+        "summary": "Verify Bill",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "number": { "type": "string" }, "operator": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Bill verification result" } }
+      }
+    },
+    "/bill_payment": {
+      "post": {
+        "tags": ["Recharge Operations"],
+        "summary": "Pay Bill",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "number": { "type": "string" }, "operator": { "type": "string" }, "amount": { "type": "number" }, "pin": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Bill paid" } }
+      }
+    },
+    "/recharge_req": {
+      "post": {
+        "tags": ["Recharge Operations"],
+        "summary": "Recharge Request (Alternate)",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "mobile": { "type": "string" }, "operator": { "type": "string" }, "amount": { "type": "number" } } } } } },
+        "responses": { "200": { "description": "Recharge requested" } }
+      }
+    },
+    "/get_operator": {
+      "post": {
+        "tags": ["Recharge Operations"],
+        "summary": "Get Single Operator",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Operator data" } }
+      }
+    },
+    "/fetch_bills": {
+      "post": {
+        "tags": ["Recharge Operations"],
+        "summary": "Fetch Bills",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Bills data" } }
+      }
+    },
+    "/fetch_dth_info": {
+      "post": {
+        "tags": ["Recharge Operations"],
+        "summary": "Fetch DTH Info",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "number": { "type": "string" }, "operator": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "DTH info" } }
+      }
+    },
+    "/get_source": {
+      "post": {
+        "tags": ["Recharge Operations"],
+        "summary": "Get Travel Source List",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Source cities" } }
+      }
+    },
+    "/get_destination": {
+      "post": {
+        "tags": ["Recharge Operations"],
+        "summary": "Get Travel Destination List",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Destination cities" } }
+      }
+    },
+    "/hotel_availability": {
+      "get": {
+        "tags": ["Recharge Operations"],
+        "summary": "Check Hotel Availability",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Hotel availability" } }
+      }
+    },
+    "/city_search": {
+      "get": {
+        "tags": ["Recharge Operations"],
+        "summary": "Search Cities",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "City search results" } }
+      }
+    },
+    "/order_make": {
+      "post": {
+        "tags": ["Payment Gateway"],
+        "summary": "Create Razorpay Order",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "amount": { "type": "number" } } } } } },
+        "responses": { "200": { "description": "Order created with order_id" } }
+      }
+    },
+    "/update_order": {
+      "post": {
+        "tags": ["Payment Gateway"],
+        "summary": "Update/Verify Razorpay Order",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "order_id": { "type": "string" }, "payment_id": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Order updated" } }
+      }
+    },
+    "/game": {
+      "post": {
+        "tags": ["Games"],
+        "summary": "Get Game Data",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Game info" } }
+      }
+    },
+    "/play_game": {
+      "post": {
+        "tags": ["Games"],
+        "summary": "Join Game",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "amount": { "type": "number" }, "pin": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Joined game" } }
+      }
+    },
+    "/get_participates": {
+      "post": {
+        "tags": ["Games"],
+        "summary": "Get Participate List",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Participant list" } }
+      }
+    },
+    "/get_wins": {
+      "post": {
+        "tags": ["Games"],
+        "summary": "Get Wins List",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Winners list" } }
+      }
+    },
+    "/get_wins_new": {
+      "post": {
+        "tags": ["Games"],
+        "summary": "Get Wins List (New)",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Winners list v2" } }
+      }
+    },
+    "/get_loans_pkg": {
+      "get": {
+        "tags": ["Loans"],
+        "summary": "Get Loan Packages",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Loan packages" } }
+      }
+    },
+    "/get_loans_list": {
+      "get": {
+        "tags": ["Loans"],
+        "summary": "Get User Loans List",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "User loans" } }
+      }
+    },
+    "/loan_investment": {
+      "post": {
+        "tags": ["Loans"],
+        "summary": "Apply for Loan",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "package_id": { "type": "integer" }, "amount": { "type": "number" }, "pin": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Loan applied" } }
+      }
+    },
+    "/approve_loan": {
+      "post": {
+        "tags": ["Loans"],
+        "summary": "Approve Loan",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "loan_id": { "type": "integer" } } } } } },
+        "responses": { "200": { "description": "Loan approved" } }
+      }
+    },
+    "/paid_Loan": {
+      "post": {
+        "tags": ["Loans"],
+        "summary": "Mark Loan as Paid",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "loan_id": { "type": "integer" } } } } } },
+        "responses": { "200": { "description": "Loan marked paid" } }
+      }
+    },
+    "/get_ebike_pkg": {
+      "get": {
+        "tags": ["E-Bike"],
+        "summary": "Get E-Bike Packages",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "E-Bike packages" } }
+      }
+    },
+    "/ebike_invest": {
+      "post": {
+        "tags": ["E-Bike"],
+        "summary": "Invest in E-Bike Package",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "package_id": { "type": "integer" }, "amount": { "type": "number" }, "pin": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "E-Bike investment done" } }
+      }
+    },
+    "/get_royalty": {
+      "post": {
+        "tags": ["E-Bike"],
+        "summary": "Get E-Bike Royalty",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Royalty data" } }
+      }
+    },
+    "/bike_income_history": {
+      "post": {
+        "tags": ["E-Bike"],
+        "summary": "Get E-Bike Income History",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "E-Bike income history" } }
+      }
+    },
+    "/get_elite_pkg": {
+      "get": {
+        "tags": ["Elite"],
+        "summary": "Get Elite Packages",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Elite packages" } }
+      }
+    },
+    "/elite_invest": {
+      "post": {
+        "tags": ["Elite"],
+        "summary": "Invest in Elite Package",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "package_id": { "type": "integer" }, "amount": { "type": "number" }, "pin": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Elite investment done" } }
+      }
+    },
+    "/left_rigth_data": {
+      "post": {
+        "tags": ["Elite"],
+        "summary": "Get Left/Right Binary Data",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Binary tree data" } }
+      }
+    },
+    "/get_fly_pkg": {
+      "get": {
+        "tags": ["Fly"],
+        "summary": "Get Fly Packages",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Fly packages" } }
+      }
+    },
+    "/fly_invest": {
+      "post": {
+        "tags": ["Fly"],
+        "summary": "Invest in Fly Package",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "package_id": { "type": "integer" }, "amount": { "type": "number" }, "pin": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Fly investment done" } }
+      }
+    },
+    "/fly_ticket": {
+      "post": {
+        "tags": ["Fly"],
+        "summary": "Get Fly Ticket",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Fly ticket data" } }
+      }
+    },
+    "/get_tour_pkg": {
+      "get": {
+        "tags": ["Tour"],
+        "summary": "Get Tour Packages",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Tour packages" } }
+      }
+    },
+    "/tour_invest": {
+      "post": {
+        "tags": ["Tour"],
+        "summary": "Invest in Tour Package",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "package_id": { "type": "integer" }, "amount": { "type": "number" }, "pin": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Tour investment done" } }
+      }
+    },
+    "/get_product": {
+      "post": {
+        "tags": ["E-Commerce"],
+        "summary": "Get Products",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Product list" } }
+      }
+    },
+    "/add_to_cart": {
+      "post": {
+        "tags": ["E-Commerce"],
+        "summary": "Add to Cart",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "product_id": { "type": "integer" }, "quantity": { "type": "integer" } } } } } },
+        "responses": { "200": { "description": "Added to cart" } }
+      }
+    },
+    "/get_cart": {
+      "post": {
+        "tags": ["E-Commerce"],
+        "summary": "Get Cart Details",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Cart data" } }
+      }
+    },
+    "/clear_cart": {
+      "post": {
+        "tags": ["E-Commerce"],
+        "summary": "Clear Cart Item",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "cart_id": { "type": "integer" } } } } } },
+        "responses": { "200": { "description": "Cart cleared" } }
+      }
+    },
+    "/add_quantity": {
+      "post": {
+        "tags": ["E-Commerce"],
+        "summary": "Update Cart Quantity",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "cart_id": { "type": "integer" }, "quantity": { "type": "integer" } } } } } },
+        "responses": { "200": { "description": "Quantity updated" } }
+      }
+    },
+    "/add_address": {
+      "post": {
+        "tags": ["E-Commerce"],
+        "summary": "Add Shipping Address",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "name": { "type": "string" }, "phone": { "type": "string" }, "address": { "type": "string" }, "city": { "type": "string" }, "state": { "type": "string" }, "zip": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Address added" } }
+      }
+    },
+    "/get_address": {
+      "post": {
+        "tags": ["E-Commerce"],
+        "summary": "Get Shipping Address",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Address data" } }
+      }
+    },
+    "/take_order": {
+      "post": {
+        "tags": ["E-Commerce"],
+        "summary": "Place Order",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "address_id": { "type": "integer" }, "pin": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Order placed" } }
+      }
+    },
+    "/order_history": {
+      "post": {
+        "tags": ["E-Commerce"],
+        "summary": "Get Order History",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "page": { "type": "integer" } } } } } },
+        "responses": { "200": { "description": "Order history" } }
+      }
+    },
+    "/donation": {
+      "get": {
+        "tags": ["Donation"],
+        "summary": "Get Donation Info",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Donation data" } }
+      }
+    },
+    "/donate": {
+      "post": {
+        "tags": ["Donation"],
+        "summary": "Make Donation",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "amount": { "type": "number" }, "pin": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Donation made" } }
+      }
+    },
+    "/buy_btc": {
+      "post": {
+        "tags": ["Buy/Sell"],
+        "summary": "Buy BTC",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "amount": { "type": "number" }, "pin": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "BTC purchased" } }
+      }
+    },
+    "/get_price": {
+      "post": {
+        "tags": ["Buy/Sell"],
+        "summary": "Get Current Price (BTC/Gold)",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Current prices" } }
+      }
+    },
+    "/sell_btc": {
+      "post": {
+        "tags": ["Buy/Sell"],
+        "summary": "Sell BTC",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "amount": { "type": "number" }, "pin": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "BTC sold" } }
+      }
+    },
+    "/buy_gold": {
+      "post": {
+        "tags": ["Buy/Sell"],
+        "summary": "Buy Gold",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "amount": { "type": "number" }, "pin": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Gold purchased" } }
+      }
+    },
+    "/sell_gold": {
+      "post": {
+        "tags": ["Buy/Sell"],
+        "summary": "Sell Gold",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "amount": { "type": "number" }, "pin": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Gold sold" } }
+      }
+    },
+    "/fetch_lucky_draw": {
+      "post": {
+        "tags": ["Lucky Draw"],
+        "summary": "Fetch Paid Lucky Draw",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Lucky draw data" } }
+      }
+    },
+    "/join_lucky_draw": {
+      "post": {
+        "tags": ["Lucky Draw"],
+        "summary": "Join Lucky Draw",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "pin": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Joined lucky draw" } }
+      }
+    },
+    "/fetch_gift_draw": {
+      "post": {
+        "tags": ["Lucky Draw"],
+        "summary": "Fetch Gift Draw",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Gift draw data" } }
+      }
+    },
+    "/join_gift_draw": {
+      "post": {
+        "tags": ["Lucky Draw"],
+        "summary": "Join Gift Draw",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Joined gift draw" } }
+      }
+    },
+    "/fetch_tour_draw": {
+      "post": {
+        "tags": ["Lucky Draw"],
+        "summary": "Fetch Tour Draw",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Tour draw data" } }
+      }
+    },
+    "/join_tour_draw": {
+      "post": {
+        "tags": ["Lucky Draw"],
+        "summary": "Join Tour Draw",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Joined tour draw" } }
+      }
+    },
+    "/exists_spinner": {
+      "post": {
+        "tags": ["Lucky Draw"],
+        "summary": "Check Spinner Eligibility",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Spinner eligibility" } }
+      }
+    },
+    "/join_spinner": {
+      "post": {
+        "tags": ["Lucky Draw"],
+        "summary": "Join Spinner",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Spinner result" } }
+      }
+    },
+    "/getlucky_participate": {
+      "post": {
+        "tags": ["Lucky Draw"],
+        "summary": "Get Lucky Draw Participation",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Participation data" } }
+      }
+    },
+    "/getgift_participate": {
+      "post": {
+        "tags": ["Lucky Draw"],
+        "summary": "Get Gift Draw Participation",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Gift participation data" } }
+      }
+    },
+    "/gettour_participate": {
+      "post": {
+        "tags": ["Lucky Draw"],
+        "summary": "Get Tour Draw Participation",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Tour participation data" } }
+      }
+    },
+    "/fetch_jackpot_draw": {
+      "post": {
+        "tags": ["Lucky Draw"],
+        "summary": "Fetch Jackpot Draw",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Jackpot draw data" } }
+      }
+    },
+    "/join_jackpot_draw": {
+      "post": {
+        "tags": ["Lucky Draw"],
+        "summary": "Join Jackpot Draw",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Joined jackpot" } }
+      }
+    },
+    "/getjackpot_participate": {
+      "post": {
+        "tags": ["Lucky Draw"],
+        "summary": "Get Jackpot Participation",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Jackpot participation data" } }
+      }
+    },
+    "/get_all_wins": {
+      "post": {
+        "tags": ["Lucky Draw"],
+        "summary": "Get All Draw Wins",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "All wins data" } }
+      }
+    },
+    "/get_jackpot_wins": {
+      "post": {
+        "tags": ["Lucky Draw"],
+        "summary": "Get Jackpot Wins",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Jackpot wins" } }
+      }
+    },
+    "/get_wins_spinner": {
+      "post": {
+        "tags": ["Lucky Draw"],
+        "summary": "Get Spinner Wins",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Spinner wins data" } }
+      }
+    },
+    "/generate_pdf": {
+      "post": {
+        "tags": ["Utility"],
+        "summary": "Generate PDF",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "PDF generated" } }
+      }
+    },
+    "/request_support": {
+      "post": {
+        "tags": ["Utility"],
+        "summary": "Submit Support Request",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "subject": { "type": "string" }, "message": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "Support request submitted" } }
+      }
+    },
+    "/support_history": {
+      "post": {
+        "tags": ["Utility"],
+        "summary": "Get Support History",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Support history" } }
+      }
+    },
+    "/meeting": {
+      "get": {
+        "tags": ["Utility"],
+        "summary": "Get Meeting Info",
+        "responses": { "200": { "description": "Meeting data" } }
+      }
+    },
+    "/gallery": {
+      "get": {
+        "tags": ["Utility"],
+        "summary": "Get Gallery",
+        "responses": { "200": { "description": "Gallery images" } }
+      }
+    },
+    "/notification": {
+      "post": {
+        "tags": ["Utility"],
+        "summary": "Send Notification",
+        "responses": { "200": { "description": "Notification sent" } }
+      }
+    },
+    "/generate_otp": {
+      "post": {
+        "tags": ["Utility"],
+        "summary": "Generate OTP",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "mobile": { "type": "string" } } } } } },
+        "responses": { "200": { "description": "OTP generated" } }
+      }
+    },
+    "/get_app_version": {
+      "get": {
+        "tags": ["Utility"],
+        "summary": "Get App Version",
+        "responses": { "200": { "description": "Current app version" } }
+      }
+    },
+    "/callBack_payIn": {
+      "post": {
+        "tags": ["Webhooks"],
+        "summary": "Payment Gateway PayIn Callback",
+        "responses": { "200": { "description": "Callback processed" } }
+      }
+    },
+    "/callback_fund": {
+      "post": {
+        "tags": ["Webhooks"],
+        "summary": "Fund Request Callback",
+        "responses": { "200": { "description": "Callback processed" } }
+      }
+    },
+    "/payment/handle_webhook": {
+      "post": {
+        "tags": ["Webhooks"],
+        "summary": "Payment Webhook Handler",
+        "responses": { "200": { "description": "Webhook processed" } }
+      }
+    },
+    "/callBack_scanPay": {
+      "post": {
+        "tags": ["Webhooks"],
+        "summary": "ScanPay Callback",
+        "responses": { "200": { "description": "Callback processed" } }
+      }
+    },
+    "/callBack_Payout": {
+      "post": {
+        "tags": ["Webhooks"],
+        "summary": "Payout Callback",
+        "responses": { "200": { "description": "Callback processed" } }
+      }
+    },
+    "/callBack_click_Payout": {
+      "post": {
+        "tags": ["Webhooks"],
+        "summary": "Click Payout Callback",
+        "responses": { "200": { "description": "Callback processed" } }
+      }
+    },
+    "/callBack_New_Click_Payout": {
+      "post": {
+        "tags": ["Webhooks"],
+        "summary": "New Click Payout Callback",
+        "responses": { "200": { "description": "Callback processed" } }
+      }
+    },
+    "/callback_recharge": {
+      "get": {
+        "tags": ["Webhooks"],
+        "summary": "Recharge Callback",
+        "responses": { "200": { "description": "Callback processed" } }
+      }
+    },
+    "/call_recharge": {
+      "get": {
+        "tags": ["Webhooks"],
+        "summary": "Recharge Call",
+        "responses": { "200": { "description": "Recharge called" } }
+      }
+    },
+    "/call_razorpay": {
+      "get": {
+        "tags": ["Webhooks"],
+        "summary": "Razorpay Verification Callback",
+        "responses": { "200": { "description": "Payment verified" } }
+      }
+    }
+  }
+}

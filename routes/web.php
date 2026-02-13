@@ -21,6 +21,7 @@ Route::get('/', [BaseController::class, 'index'])->name('home');
 //     return view('dashboard');
 // })->middleware(['auth', 'verified'])->name('dashboard');
 Route::get('/payment/success', [FundRequestController::class, 'success'])->name('payment.success');
+Route::get('/swagger', fn() => view('api-docs'))->name('api-docs');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
