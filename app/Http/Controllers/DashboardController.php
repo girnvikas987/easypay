@@ -317,17 +317,20 @@ class DashboardController extends Controller
     public function getActivePackages(Request $request){
 
         $userId = $request->user()->id;
-        $investments = Investment::where('user_id', $userId)
-        ->selectRaw('*, CASE WHEN received_amnt >= 2 * amount THEN 0 ELSE status END as pkg_status')
-        ->where('status', 1)
-        ->latest()
-        ->get();
+        try {
+            $investments = Investment::where('user_id', $userId)
+                ->where('status', 1)
+                ->latest()
+                ->get();
+        } catch (\Exception $e) {
+            $investments = collect();
+        }
         $investmentAmnt  = Investment::where('user_id',$userId)->where('status',1)->sum('amount');
-        $LoanInvestment  = LoanInvestment::where('user_id',$userId)->where('status',1)->latest()->get();
-        $EbikeInvestment  = EbikeInvestment::where('user_id',$userId)->where('status',1)->latest()->get();
-        $RechargeInvestment  = RechargeInvestment::where('user_id',$userId)->where('status',1)->latest()->get();
-        $GoldInvestment  = GoldInvestment::where('user_id',$userId)->where('status',1)->latest()->get();
-        $TourInvestment  = TourInvestment::where('user_id',$userId)->where('status',1)->latest()->get();
+        try { $LoanInvestment = LoanInvestment::where('user_id',$userId)->where('status',1)->latest()->get(); } catch (\Exception $e) { $LoanInvestment = collect(); }
+        try { $EbikeInvestment = EbikeInvestment::where('user_id',$userId)->where('status',1)->latest()->get(); } catch (\Exception $e) { $EbikeInvestment = collect(); }
+        try { $RechargeInvestment = RechargeInvestment::where('user_id',$userId)->where('status',1)->latest()->get(); } catch (\Exception $e) { $RechargeInvestment = collect(); }
+        try { $GoldInvestment = GoldInvestment::where('user_id',$userId)->where('status',1)->latest()->get(); } catch (\Exception $e) { $GoldInvestment = collect(); }
+        try { $TourInvestment = TourInvestment::where('user_id',$userId)->where('status',1)->latest()->get(); } catch (\Exception $e) { $TourInvestment = collect(); }
 
          $response = [
             'success' => true,
@@ -344,6 +347,7 @@ class DashboardController extends Controller
     }
 
                     public function test(){
+                        try {
                          $mobile  ="7357378249";
                         $otp = "125634";
 
@@ -418,6 +422,11 @@ class DashboardController extends Controller
                          $res['status'] = false;
                          $res['msg'] = 'Something Went wrong!';
                     }
+                        } catch (\Exception $e) {
+                            $res['status'] = false;
+                            $res['msg'] = 'Test endpoint error: ' . $e->getMessage();
+                        }
+                        return response()->json($res ?? ['status' => false, 'msg' => 'Test complete.'], 200);
 
                 }
 

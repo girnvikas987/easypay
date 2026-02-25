@@ -57,12 +57,17 @@ class TeamController extends Controller
        // dd(DB::getQueryLog());
 
 
-        return view('pages.directs', [
-            'user' => $request->user(),
-            'name' => $name,
-            'username' => $username,
-            'status' => $status,
-        ])->with('directs',$a);
+        $response = [
+            'success' => true,
+            'data' => $a->items(),
+            'pagination' => [
+                'current_page' => $a->currentPage(),
+                'last_page' => $a->lastPage(),
+                'total_items' => $a->total(),
+            ],
+            'message' => 'Directs fetched successfully.',
+        ];
+        return response()->json($response, 200);
 
     }
 

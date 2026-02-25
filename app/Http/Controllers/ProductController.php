@@ -22,7 +22,7 @@ use Carbon\Carbon;
 class ProductController extends Controller
 {
     public function getProduct(){
-        $allProduct = Product::where('product_status',1)->get();
+        $allProduct = Product::where('status',1)->get();
     
         $response =[
             'success'=>true,                

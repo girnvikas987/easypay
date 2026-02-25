@@ -125,9 +125,14 @@ class LuckyDrawController extends Controller
          }else{
             $plan = PlanLuckyDraw::where('status',1)->where('id',$id)->first();
             $wlts=Wallet::where('user_id',$user_id)->first();
-            
+
+            if(!$plan || !$wlts){
+                $response = ['success' => false, 'message' => !$plan ? 'Lucky draw plan not found!' : 'Wallet not found!'];
+                return response()->json($response, 200);
+            }
+
             $detectwallet = $wlts->$wallet_type;
-            
+
             if($detectwallet >= $plan->pay_limit){
         //         if($detectwallet >= $plan->pay_limit){
         //             $wallet = 'one';
