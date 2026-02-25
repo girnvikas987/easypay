@@ -14,25 +14,6 @@ return new class extends Migration
                 $table->double('received_amnt', 15, 2)->default(0)->after('amount');
             });
         }
-
-        // Add status column to products if missing
-        if (Schema::hasTable('products') && !Schema::hasColumn('products', 'status')) {
-            Schema::table('products', function (Blueprint $table) {
-                $table->tinyInteger('status')->default(1)->after('amount');
-            });
-        }
-
-        // Create otp table if missing (referenced by DashboardController test)
-        if (!Schema::hasTable('otp')) {
-            Schema::create('otp', function (Blueprint $table) {
-                $table->id();
-                $table->string('mobile')->nullable();
-                $table->string('code')->nullable();
-                $table->tinyInteger('status')->default(0);
-                $table->dateTime('time')->nullable();
-                $table->timestamps();
-            });
-        }
     }
 
     public function down(): void
@@ -42,7 +23,5 @@ return new class extends Migration
                 $table->dropColumn('received_amnt');
             });
         }
-
-        Schema::dropIfExists('otp');
     }
 };
