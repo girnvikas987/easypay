@@ -56,8 +56,8 @@ class KycController extends Controller
         //   CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         //   CURLOPT_CUSTOMREQUEST => 'POST',
         //   CURLOPT_POSTFIELDS =>'{
-        //     "merchantId": "AP203874",
-        //     "merchantKey": "5592118D36",
+        //     "merchantId": "'.env('CYRUS_KYC_MERCHANT_ID').'",
+        //     "merchantKey": "'.env('CYRUS_KYC_MERCHANT_KEY').'",
         //     "panNumber": "'.$pan_number.'",
         //     "type": "PANCARD",
         //     "txnid":"'.$transactionId.'",
@@ -216,8 +216,8 @@ class KycController extends Controller
           CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
           CURLOPT_CUSTOMREQUEST => 'POST',
           CURLOPT_POSTFIELDS =>'{
-            "merchantId": "AP203874",
-            "merchantKey": "5592118D36",
+            "merchantId": "'.env('CYRUS_KYC_MERCHANT_ID').'",
+            "merchantKey": "'.env('CYRUS_KYC_MERCHANT_KEY').'",
             "aadharno": "'.$aadhar_number.'",
             "type": "AADHARSENDOTP",
             "txnid":"'.$transactionId.'"
@@ -297,8 +297,8 @@ class KycController extends Controller
         //   CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         //   CURLOPT_CUSTOMREQUEST => 'POST',
         //   CURLOPT_POSTFIELDS =>'{
-        //      "merchantId": "AP203874",
-        //     "merchantKey": "5592118D36",
+        //      "merchantId": "'.env('CYRUS_KYC_MERCHANT_ID').'",
+        //     "merchantKey": "'.env('CYRUS_KYC_MERCHANT_KEY').'",
         //     "client_id": "'.$client_id.'",
         //     "otp": "'.$otp.'",
         //     "type": "AADHARGETOTP",
@@ -414,10 +414,10 @@ class KycController extends Controller
         $exists = Kyc::where('user_id',$userId)->first();
         if($exists){
 
-                    $exists['pan_image'] = "https://easydigipays.com/storage/".$exists->pan_image;
-                    $exists['aadhar_front_image'] = "https://easydigipays.com/storage/".$exists->aadhar_front_image;
-                    $exists['aadhar_back_image'] = "https://easydigipays.com/storage/".$exists->aadhar_back_image;
-                    $exists['nominee_image'] = "https://easydigipays.com/storage/".$exists->nominee_image;
+                    $exists['pan_image'] = env('APP_URL') . '/storage/' . $exists->pan_image;
+                    $exists['aadhar_front_image'] = env('APP_URL') . '/storage/' . $exists->aadhar_front_image;
+                    $exists['aadhar_back_image'] = env('APP_URL') . '/storage/' . $exists->aadhar_back_image;
+                    $exists['nominee_image'] = env('APP_URL') . '/storage/' . $exists->nominee_image;
                     if($exists->aadhar_no == null){
                         $exists['aadhar_status'] = 2;
                     }

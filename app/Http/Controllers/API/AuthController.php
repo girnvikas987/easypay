@@ -417,8 +417,8 @@ class AuthController extends Controller
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => [
-                'username' => 'u23137',
-                'token' => '7zb7Gg',
+                'username' => env('VOICE_API_USERNAME'),
+                'token' => env('VOICE_API_TOKEN'),
                 'plan_id' => '47236',
                 'announcement_id' => '678784',
                 'caller_id' => '0',
@@ -458,11 +458,11 @@ class AuthController extends Controller
         
         foreach($allUser as $user){
             $voice_id = $user->voice_id;
-            $username = urlencode("u23137");
-            $token = urlencode("7zb7Gg");
+            $username = urlencode(env('VOICE_API_USERNAME'));
+            $token = urlencode(env('VOICE_API_TOKEN'));
             $unique_ids = urlencode($voice_id);
     
-            $api = "http://103.255.103.28/api/voice/fetch_report.php?username=".$username."&token=".$token."&unique_ids=".$unique_ids;
+            $api = env('VOICE_API_REPORT_URL', 'https://103.255.103.28/api/voice/fetch_report.php') . "?username=".$username."&token=".$token."&unique_ids=".$unique_ids;
     
             $response = file_get_contents($api);
     
@@ -491,8 +491,8 @@ class AuthController extends Controller
                                     CURLOPT_RETURNTRANSFER => true,
                                     CURLOPT_POST => true,
                                     CURLOPT_POSTFIELDS => [
-                                        'username' => 'u23137',
-                                        'token' => '7zb7Gg',
+                                        'username' => env('VOICE_API_USERNAME'),
+                                        'token' => env('VOICE_API_TOKEN'),
                                         'plan_id' => '47236',
                                         'announcement_id' => '678784',
                                         'caller_id' => '0',
@@ -898,7 +898,7 @@ public function verifyBothOtp(Request $request){
             $otpToken ="657567"; //wOtp::digits(6)->expiry(30)->generate($mobile);
             
            
-            $apiKey = "71a9b0fbe3cb414583372e7c5664a5b4";
+            $apiKey = env('WHATSAPP_API_KEY');
              
             $msg =  "Dear%20$decoded_msg%20Welcome%20To%20S2PAY%20Registration%20OTP%20$otpToken%0AThank%20S2PAY%20APP%20Smart%20Mobile%20Smart%20Work%20Smart%20Earnings";
             
@@ -906,7 +906,7 @@ public function verifyBothOtp(Request $request){
             $ch = curl_init();
             
             // Set the URL and other options
-            curl_setopt($ch, CURLOPT_URL, "http://whatsapp.click4bulksms.in/wapp/api/send?apikey=$apiKey&mobile=$mobile&msg=$msg");
+            curl_setopt($ch, CURLOPT_URL, "" . env('WHATSAPP_API_URL', 'https://whatsapp.click4bulksms.in/wapp/api/send') . "?apikey=$apiKey&mobile=$mobile&msg=$msg");
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_TIMEOUT, 30);
             
@@ -984,7 +984,7 @@ public function verifyBothOtp(Request $request){
             $curl = curl_init();
             
             curl_setopt_array($curl, array(
-                CURLOPT_URL => 'https://smsmaa.com/SMS_API/sendsms.php?username=welcomejoykrl&password=KRL999&mobile='.$mobile.'&sendername=WELJOY&message=New%20Registration%20OTP%20'.$otpToken.'%20WELCOME%20JOY%20TOURS%20AND%20TRAVELS%20OPC%20PVT.LTD&routetype=1',
+                CURLOPT_URL => env('SMS_API_URL', 'https://smsmaa.com/SMS_API/sendsms.php') . '?username=' . env('SMS_USERNAME') . '&password=' . env('SMS_PASSWORD') . '&mobile=' . $mobile . '&sendername=' . env('SMS_SENDER', 'WELJOY') . '&message=New%20Registration%20OTP%20'.$otpToken.'%20WELCOME%20JOY%20TOURS%20AND%20TRAVELS%20OPC%20PVT.LTD&routetype=1',
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
@@ -993,53 +993,53 @@ public function verifyBothOtp(Request $request){
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST => 'GET',
             ));
-            
+
             $response = curl_exec($curl);
 
             curl_close($curl);
-           
-           
+
+
             if ($response) {
                     $responseArray = explode(";", $response);
                     $status = "";
                     $remark = "";
                     $guid = ""; // Initialize GUID variable
-                    
+
                     // Iterate through each element of the response array
                     foreach ($responseArray as $element) {
                         // Split each element by colon to separate key and value
                         $pair = explode(":", $element, 2); // Limit the split to 2 parts to handle values containing colons
-                
+
                         // Extract key and value, trim whitespace
                         $key = trim($pair[0]);
                         $value = trim($pair[1]);
-                
+
                         // Check if the key is "Status"
                         if ($key === "Status") {
                             $status = $value;
                         }
-                
+
                         // Check if the key is "Remark"
                         if ($key === "Remark") {
                             $remark = $value;
                         }
-                
+
                         // Check if the key is "GUID"
                         if ($key === "GUID") {
                             $guid = $value;
                         }
                     }
 
-      
+
                     if($status == 1){
-                        
+
                         $responsed = [
                             'success' => true,
                             'data' => '',
                             'message' => "otp Generated successfully."
-                            
-                        ];  
-                      
+
+                        ];
+
                     }else{
 
                         $responsed = [
@@ -1047,7 +1047,7 @@ public function verifyBothOtp(Request $request){
                             'data' =>  '',
                             'message' => $remark
                         ];
-                    
+
                     }
             }else{
 
@@ -1056,12 +1056,12 @@ public function verifyBothOtp(Request $request){
                     'data' =>  '',
                     'message' => 'Something Went wrong'
                 ];
-               
+
             }
 
             return response()->json($responsed, 200);
 
-}         
+}
   public function sendOtpnew(Request $request){ 
 
 
@@ -1093,7 +1093,7 @@ public function verifyBothOtp(Request $request){
             $curl = curl_init();
             
             curl_setopt_array($curl, array(
-                CURLOPT_URL => 'https://smsmaa.com/SMS_API/sendsms.php?username=welcomejoykrl&password=KRL999&mobile='.$mobile.'&sendername=WELJOY&message=New%20Registration%20OTP%20'.$otpToken.'%20WELCOME%20JOY%20TOURS%20AND%20TRAVELS%20OPC%20PVT.LTD&routetype=1',
+                CURLOPT_URL => env('SMS_API_URL', 'https://smsmaa.com/SMS_API/sendsms.php') . '?username=' . env('SMS_USERNAME') . '&password=' . env('SMS_PASSWORD') . '&mobile=' . $mobile . '&sendername=' . env('SMS_SENDER', 'WELJOY') . '&message=New%20Registration%20OTP%20'.$otpToken.'%20WELCOME%20JOY%20TOURS%20AND%20TRAVELS%20OPC%20PVT.LTD&routetype=1',
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
@@ -1152,7 +1152,7 @@ public function verifyBothOtp(Request $request){
                         $curl = curl_init();
 
                         curl_setopt_array($curl, array(
-                          CURLOPT_URL => 'http://email.adworthsms.com/pushemail.php?username=shivakumar&api_password=88634ccf2gf40mqog&subject=Verify%20Your%20Email%20Address&replyto=info%40s2pay.life&cright=s2pay.life&sender=info%40s2pay.life&display=Verify%20Your%20Email%20Address&to='.$email.'&message=Your%20One-Time%20Password%20(OTP)%20for%20verification%20is%3A%20'.$otpToken,
+                          CURLOPT_URL => env('EMAIL_API_URL', 'https://email.adworthsms.com/pushemail.php') . '?username=' . env('EMAIL_API_USERNAME') . '&api_password=' . env('EMAIL_API_PASSWORD') . '&subject=Verify%20Your%20Email%20Address&replyto=' . urlencode('info@' . parse_url(env('APP_URL'), PHP_URL_HOST)) . '&cright=' . urlencode(parse_url(env('APP_URL'), PHP_URL_HOST)) . '&sender=' . urlencode('info@' . parse_url(env('APP_URL'), PHP_URL_HOST)) . '&display=Verify%20Your%20Email%20Address&to='.$email.'&message=Your%20One-Time%20Password%20(OTP)%20for%20verification%20is%3A%20'.$otpToken,
                           CURLOPT_RETURNTRANSFER => true,
                           CURLOPT_ENCODING => '',
                           CURLOPT_MAXREDIRS => 10,
@@ -1218,13 +1218,13 @@ public function verifyBothOtp(Request $request){
     public function sendRegisterMsg($msg,$mobile){
      
        
-            $apiKey = "71a9b0fbe3cb414583372e7c5664a5b4";
+            $apiKey = env('WHATSAPP_API_KEY');
              
               
             $ch = curl_init();
             
             // Set the URL and other options
-            curl_setopt($ch, CURLOPT_URL, "http://whatsapp.click4bulksms.in/wapp/api/send?apikey=$apiKey&mobile=$mobile&msg=$msg");
+            curl_setopt($ch, CURLOPT_URL, "" . env('WHATSAPP_API_URL', 'https://whatsapp.click4bulksms.in/wapp/api/send') . "?apikey=$apiKey&mobile=$mobile&msg=$msg");
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_TIMEOUT, 30);
             
@@ -1334,8 +1334,8 @@ public function verifyBothOtp(Request $request){
     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
     CURLOPT_CUSTOMREQUEST => 'POST',
     CURLOPT_POSTFIELDS =>'{
-        "merchantId": "AP390079",
-        "merchantKey": "80CCB55178",
+        "merchantId": "' . env('CYRUS_VERIFY_MERCHANT_ID') . '",
+        "merchantKey": "' . env('CYRUS_VERIFY_MERCHANT_KEY') . '",
          "panNumber": "' . $pan_no . '",
         "type": "PANCARD",
         "txnid": "' . $transactionId . '"
@@ -1421,8 +1421,8 @@ public function verifyBothOtp(Request $request){
       CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
       CURLOPT_CUSTOMREQUEST => 'POST',
       CURLOPT_POSTFIELDS =>'{
-        "merchantId": "AP390079",
-        "merchantKey": "80CCB55178",
+        "merchantId": "'.env('CYRUS_VERIFY_MERCHANT_ID').'",
+        "merchantKey": "'.env('CYRUS_VERIFY_MERCHANT_KEY').'",
         "Account":"'.$account.'",
         "Ifsc": "'.$ifsc_code.'",
         "type": "ACCOUNT VERIFICATION",

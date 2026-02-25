@@ -94,7 +94,7 @@ class RechargeController extends Controller
       CURLOPT_FOLLOWLOCATION => true,
       CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
       CURLOPT_CUSTOMREQUEST => 'POST',
-      CURLOPT_POSTFIELDS => array('api_key' => '89ef91-7f1fb4-929d67-514b34-14f28c','number' => $mobile),
+      CURLOPT_POSTFIELDS => array('api_key' => env('KWIKAPI_KEY'),'number' => $mobile),
       CURLOPT_HTTPHEADER => array(
         'Cookie: PHPSESSID=5aee25cc19bc9808829f233baeb5a16c'
       ),
@@ -157,7 +157,7 @@ class RechargeController extends Controller
             $curl = curl_init();
 
             curl_setopt_array($curl, array(
-              CURLOPT_URL => 'https://www.kwikapi.com/api/v2/bills/validation.php?api_key=89ef91-7f1fb4-929d67-514b34-14f28c&number='.$number.'&amount='.$amount.'&opid='.$opid.'&order_id='.$transactionId.'&opt1=opt1&opt2=opt2&opt3=opt3&opt4=opt4&opt5=opt5&opt6=opt6&opt7=opt7&opt8=Bills&opt9=opt9&opt10=opt10&mobile='.$mobile,
+              CURLOPT_URL => 'https://www.kwikapi.com/api/v2/bills/validation.php?api_key=' . env('KWIKAPI_KEY') . '&number='.$number.'&amount='.$amount.'&opid='.$opid.'&order_id='.$transactionId.'&opt1=opt1&opt2=opt2&opt3=opt3&opt4=opt4&opt5=opt5&opt6=opt6&opt7=opt7&opt8=Bills&opt9=opt9&opt10=opt10&mobile='.$mobile,
               CURLOPT_RETURNTRANSFER => true,
               CURLOPT_ENCODING => '',
               CURLOPT_MAXREDIRS => 10,
@@ -237,7 +237,7 @@ class RechargeController extends Controller
               CURLOPT_FOLLOWLOCATION => true,
               CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
               CURLOPT_CUSTOMREQUEST => 'POST',
-              CURLOPT_POSTFIELDS => array('api_key' => '89ef91-7f1fb4-929d67-514b34-14f28c','state_code' => $state_code,'opid' => $opid),
+              CURLOPT_POSTFIELDS => array('api_key' => env('KWIKAPI_KEY'),'state_code' => $state_code,'opid' => $opid),
               CURLOPT_HTTPHEADER => array(
 
               ),
@@ -311,7 +311,7 @@ class RechargeController extends Controller
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-          CURLOPT_URL => 'https://www.kwikapi.com/api/v2/recharge.php?api_key=89ef91-7f1fb4-929d67-514b34-14f28c&number='.$mobile.'&amount='.$amount.'&opid='.$operator.'&state_code='.$circle.'&order_id='.$transactionId,
+          CURLOPT_URL => 'https://www.kwikapi.com/api/v2/recharge.php?api_key=' . env('KWIKAPI_KEY') . '&number='.$mobile.'&amount='.$amount.'&opid='.$operator.'&state_code='.$circle.'&order_id='.$transactionId,
           CURLOPT_RETURNTRANSFER => true,
           CURLOPT_ENCODING => '',
           CURLOPT_MAXREDIRS => 10,
