@@ -661,5 +661,384 @@ class RechargeController extends Controller
         return response()->json(['success' => false, 'message' => 'Missing required parameters.'], 200);
     }
 
+    // ── Missing methods (stub implementations) ──────────────────────
+
+    public function packages(){
+        try {
+            $wallets = \App\Models\WalletType::whereIn('id',['1','2','3','8'])->get();
+            $lists = RechargePackage::where('status',1)->get();
+            $response = [
+                'success' => true,
+                'data' => $lists,
+                'wallets' => $wallets,
+                'message' => 'Recharge Package fetch Successfully.',
+            ];
+        } catch (\Exception $e) {
+            $response = ['success' => false, 'data' => [], 'message' => 'Recharge packages not available.'];
+        }
+        return response()->json($response, 200);
+    }
+
+    public function buyPackage(Request $request){
+        $validator = Validator::make($request->all(),[
+            'mobile' => ['required', 'string', 'max:255', 'exists:users,mobile'],
+            'package' => ['required', 'integer'],
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'message' => $validator->errors()], 200);
+        }
+
+        $wallet_type = $request->wallet_type ?? 'main_wallet';
+        $usera = User::where('mobile', $request->mobile)->first();
+        if (!$usera) {
+            return response()->json(['success' => false, 'message' => 'User not found.'], 200);
+        }
+
+        $pkgDetails = RechargePackage::where('id', $request->package)->first();
+        if (!$pkgDetails) {
+            return response()->json(['success' => false, 'message' => 'Package not found.'], 200);
+        }
+
+        $amnt = $pkgDetails->type == 'fix' ? $pkgDetails->amount : ($request->amount ?? $pkgDetails->amount);
+
+        DB::beginTransaction();
+        try {
+            $invest = RechargeInvestment::create([
+                'user_id' => $usera->id,
+                'package_id' => $request->package,
+                'amount' => $amnt,
+                'status' => 1,
+            ]);
+
+            \App\Models\Wallet::where('user_id', Auth::user()->id)->decrement($wallet_type, $amnt);
+
+            $closed_amount = $request->user()->wallet->$wallet_type ?? 0;
+            Transaction::create([
+                'user_id' => Auth::user()->id,
+                'tx_user' => $usera->id,
+                'amount' => $amnt,
+                'type' => 'debit',
+                'tx_type' => 'recharge_topup',
+                'status' => 1,
+                'wallet' => $wallet_type,
+                'tx_id' => $invest->id,
+                'close_amount' => $closed_amount,
+                'remark' => 'Recharge package of ' . $request->mobile . ' activated',
+            ]);
+
+            DB::commit();
+            $response = ['success' => true, 'data' => $amnt, 'message' => 'Recharge Package Active successfully.'];
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $response = ['success' => false, 'message' => 'Something went wrong.'];
+        }
+        return response()->json($response, 200);
+    }
+
+    public function getRechargeRoyalty(Request $request){
+        try {
+            $royalties = PlanRechargeRoyalty::where('status', 1)->get();
+            $response = ['success' => true, 'data' => $royalties, 'message' => 'Data fetch successfully.'];
+        } catch (\Exception $e) {
+            $response = ['success' => false, 'data' => [], 'message' => 'Royalty data not available.'];
+        }
+        return response()->json($response, 200);
+    }
+
+    public function getRechargeTour(Request $request){
+        try {
+            $userId = $request->user()->id;
+            $trips = RechargeTripAchiver::where('user_id', $userId)->get();
+            $planTrips = PlanTrip::where('status', 1)->get();
+            $response = ['success' => true, 'data' => $trips, 'plans' => $planTrips, 'message' => 'Trip data fetch successfully.'];
+        } catch (\Exception $e) {
+            $response = ['success' => false, 'data' => [], 'message' => 'Trip data not available.'];
+        }
+        return response()->json($response, 200);
+    }
+
+    public function providers(Request $request){
+        try {
+            $validator = Validator::make($request->all(),[
+                'provider_name' => ['required', 'string'],
+                'service_type' => ['required', 'string'],
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['success' => false, 'message' => $validator->errors()], 200);
+            }
+
+            $provider = Provider::updateOrCreate(
+                ['provider_name' => $request->provider_name, 'service_type' => $request->service_type],
+                $request->only(['provider_id', 'provider_name', 'service_id', 'service_name', 'service_type', 'help_line', 'status'])
+            );
+            $response = ['success' => true, 'data' => $provider, 'message' => 'Provider saved successfully.'];
+        } catch (\Exception $e) {
+            $response = ['success' => false, 'message' => 'Something went wrong.'];
+        }
+        return response()->json($response, 200);
+    }
+
+    public function getProviders(Request $request){
+        try {
+            $type = $request->service_type;
+            $query = Provider::where('status', 1);
+            if ($type) {
+                $query->where('service_type', $type);
+            }
+            $providers = $query->get();
+            $response = ['success' => true, 'data' => $providers, 'message' => 'Providers fetched successfully.'];
+        } catch (\Exception $e) {
+            $response = ['success' => false, 'data' => [], 'message' => 'Providers not available.'];
+        }
+        return response()->json($response, 200);
+    }
+
+    public function recharge_services(Request $request){
+        try {
+            $services = Provider::where('status', 1)->select('service_id', 'service_name', 'service_type')->distinct()->get();
+            $response = ['success' => true, 'data' => $services, 'message' => 'Services fetched successfully.'];
+        } catch (\Exception $e) {
+            $response = ['success' => false, 'data' => [], 'message' => 'Services not available.'];
+        }
+        return response()->json($response, 200);
+    }
+
+    public function handleRechargecallback(Request $request){
+        Log::info('Recharge callback received', $request->all());
+        return response()->json(['success' => true, 'message' => 'Callback processed.'], 200);
+    }
+
+    public function validateProvider(Request $request){
+        $validator = Validator::make($request->all(),[
+            'provider_id' => ['required'],
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'message' => $validator->errors()], 200);
+        }
+        try {
+            $provider = Provider::where('provider_id', $request->provider_id)->where('status', 1)->first();
+            if ($provider) {
+                $response = ['success' => true, 'data' => $provider, 'message' => 'Provider validated successfully.'];
+            } else {
+                $response = ['success' => false, 'message' => 'Provider not found or inactive.'];
+            }
+        } catch (\Exception $e) {
+            $response = ['success' => false, 'message' => 'Validation failed.'];
+        }
+        return response()->json($response, 200);
+    }
+
+    public function biilVerify(Request $request){
+        $validator = Validator::make($request->all(),[
+            'operator' => ['required', 'string'],
+            'number' => ['required', 'string'],
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'message' => $validator->errors()], 200);
+        }
+        try {
+            $opid = $request->operator;
+            $number = $request->number;
+            $amount = $request->amount ?? 0;
+            $mobile = $request->mobile ?? '';
+
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => 'https://www.kwikapi.com/api/v2/bills/validation.php?api_key=' . env('KWIKAPI_KEY') . '&number=' . $number . '&amount=' . $amount . '&opid=' . $opid . '&order_id=' . now()->format('His') . '&mobile=' . $mobile,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_CUSTOMREQUEST => 'GET',
+            ));
+            $result = json_decode(curl_exec($curl), true);
+            curl_close($curl);
+
+            if ($result && isset($result['status']) && Str::lower($result['status']) == 'success') {
+                $response = ['success' => true, 'data' => $result, 'message' => 'Bill verified successfully.'];
+            } else {
+                $response = ['success' => false, 'data' => $result ?? '', 'message' => $result['message'] ?? 'Bill verification failed.'];
+            }
+        } catch (\Exception $e) {
+            $response = ['success' => false, 'message' => 'Bill verification service unavailable.'];
+        }
+        return response()->json($response, 200);
+    }
+
+    public function billPayment(Request $request){
+        $validator = Validator::make($request->all(),[
+            'operator' => ['required', 'string'],
+            'number' => ['required', 'string'],
+            'amount' => ['required', 'numeric', 'min:1'],
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'message' => $validator->errors()], 200);
+        }
+        try {
+            $opid = $request->operator;
+            $number = $request->number;
+            $amount = $request->amount;
+            $mobile = $request->mobile ?? $number;
+            $transactionId = now()->format('His');
+
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => 'https://www.kwikapi.com/api/v2/bills/payment.php?api_key=' . env('KWIKAPI_KEY') . '&number=' . $number . '&amount=' . $amount . '&opid=' . $opid . '&order_id=' . $transactionId . '&mobile=' . $mobile,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_CUSTOMREQUEST => 'GET',
+            ));
+            $result = json_decode(curl_exec($curl), true);
+            curl_close($curl);
+
+            if ($result && isset($result['status']) && Str::lower($result['status']) == 'success') {
+                $response = ['success' => true, 'data' => $result, 'message' => 'Bill payment successful.'];
+            } else {
+                $response = ['success' => false, 'data' => $result ?? '', 'message' => $result['message'] ?? 'Bill payment failed.'];
+            }
+        } catch (\Exception $e) {
+            $response = ['success' => false, 'message' => 'Bill payment service unavailable.'];
+        }
+        return response()->json($response, 200);
+    }
+
+    public function rechargeReq(Request $request){
+        $validator = Validator::make($request->all(),[
+            'mobile' => ['required', 'numeric'],
+            'amount' => ['required', 'numeric', 'min:10'],
+            'operator' => ['required', 'string'],
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'message' => $validator->errors()], 200);
+        }
+        try {
+            $mobile = $request->mobile;
+            $amount = $request->amount;
+            $operator = $request->operator;
+            $transactionId = now()->format('His');
+
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => 'https://www.kwikapi.com/api/v2/recharge.php?api_key=' . env('KWIKAPI_KEY') . '&number=' . $mobile . '&amount=' . $amount . '&opid=' . $operator . '&order_id=' . $transactionId,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_CUSTOMREQUEST => 'GET',
+            ));
+            $result = json_decode(curl_exec($curl), true);
+            curl_close($curl);
+
+            if ($result && isset($result['status']) && Str::lower($result['status']) != 'failure') {
+                $response = ['success' => true, 'data' => $result, 'message' => 'Recharge request submitted.'];
+            } else {
+                $response = ['success' => false, 'data' => $result ?? '', 'message' => $result['message'] ?? 'Recharge failed.'];
+            }
+        } catch (\Exception $e) {
+            $response = ['success' => false, 'message' => 'Recharge service unavailable.'];
+        }
+        return response()->json($response, 200);
+    }
+
+    public function getOperator(Request $request){
+        try {
+            $type = $request->type ?? $request->service_type;
+            $query = Operator::query();
+            if ($type) {
+                $query->where('service_type', $type);
+            }
+            $operators = $query->get();
+            $response = ['success' => true, 'data' => $operators, 'message' => 'Operators fetched successfully.'];
+        } catch (\Exception $e) {
+            $response = ['success' => false, 'data' => [], 'message' => 'Operators not available.'];
+        }
+        return response()->json($response, 200);
+    }
+
+    public function fetchFill(Request $request){
+        $validator = Validator::make($request->all(),[
+            'operator' => ['required', 'string'],
+            'number' => ['required', 'string'],
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'message' => $validator->errors()], 200);
+        }
+        try {
+            $opid = $request->operator;
+            $number = $request->number;
+            $amount = $request->amount ?? 0;
+            $mobile = $request->mobile ?? '';
+
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => 'https://www.kwikapi.com/api/v2/bills/validation.php?api_key=' . env('KWIKAPI_KEY') . '&number=' . $number . '&amount=' . $amount . '&opid=' . $opid . '&order_id=' . now()->format('His') . '&mobile=' . $mobile,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_CUSTOMREQUEST => 'GET',
+            ));
+            $result = json_decode(curl_exec($curl), true);
+            curl_close($curl);
+
+            if ($result && isset($result['status']) && Str::lower($result['status']) == 'success') {
+                $response = ['success' => true, 'data' => $result, 'message' => 'Bill fetched successfully.'];
+            } else {
+                $response = ['success' => false, 'data' => $result ?? '', 'message' => $result['message'] ?? 'Bill fetch failed.'];
+            }
+        } catch (\Exception $e) {
+            $response = ['success' => false, 'message' => 'Bill fetch service unavailable.'];
+        }
+        return response()->json($response, 200);
+    }
+
+    public function fetchDTHinfo(Request $request){
+        $validator = Validator::make($request->all(),[
+            'operator' => ['required', 'string'],
+            'number' => ['required', 'string'],
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'message' => $validator->errors()], 200);
+        }
+        try {
+            $opid = $request->operator;
+            $number = $request->number;
+
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => 'https://www.kwikapi.com/api/v2/dth_info.php?api_key=' . env('KWIKAPI_KEY') . '&number=' . $number . '&opid=' . $opid,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_CUSTOMREQUEST => 'GET',
+            ));
+            $result = json_decode(curl_exec($curl), true);
+            curl_close($curl);
+
+            if ($result && isset($result['success']) && $result['success'] == true) {
+                $response = ['success' => true, 'data' => $result, 'message' => 'DTH info fetched successfully.'];
+            } else {
+                $response = ['success' => false, 'data' => $result ?? '', 'message' => $result['message'] ?? 'DTH info fetch failed.'];
+            }
+        } catch (\Exception $e) {
+            $response = ['success' => false, 'message' => 'DTH info service unavailable.'];
+        }
+        return response()->json($response, 200);
+    }
+
+    public function GetSourceList(Request $request){
+        return response()->json(['success' => true, 'data' => [], 'message' => 'Bus booking service coming soon.'], 200);
+    }
+
+    public function GetDestinationList(Request $request){
+        return response()->json(['success' => true, 'data' => [], 'message' => 'Bus booking service coming soon.'], 200);
+    }
+
+    public function hotelAvailability(Request $request){
+        return response()->json(['success' => true, 'data' => [], 'message' => 'Hotel service coming soon.'], 200);
+    }
+
+    public function citySearch(Request $request){
+        return response()->json(['success' => true, 'data' => [], 'message' => 'City search service coming soon.'], 200);
+    }
+
 }
 

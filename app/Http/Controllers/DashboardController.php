@@ -407,7 +407,7 @@ class DashboardController extends Controller
                                 $otps['status'] = 0;
                                 $otps['time'] =  date('Y-m-d H:i:s');
                                 $otps['code'] =  $otp;
-                                $this->db->insert('otp',$otps);
+                                DB::table('otp')->insert($otps);
                                 $res['status'] = true;
                                 $res['msg'] = 'Otp send Successfully.';
                             }else{

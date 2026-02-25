@@ -161,7 +161,11 @@ class ProfileController extends Controller
 
         }
         $userId = $request->user()->id;
-            
+
+        if(!$request->hasFile('user_image')){
+            return response()->json(['success' => false, 'message' => 'No image file provided.'], 200);
+        }
+
         $imageName = time().'.'.$request->user_image->extension();
         
         $request->user_image->storeAs('user', $imageName);

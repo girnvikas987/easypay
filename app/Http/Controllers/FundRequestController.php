@@ -448,7 +448,7 @@ class FundRequestController extends Controller
 
 
 
-    public function addFund(){
+    public function addFund(Request $request){
         if($request->user()->kyc_status == '0'){
             $res = [
                 'success' => false,

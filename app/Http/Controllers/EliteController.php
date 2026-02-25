@@ -61,12 +61,12 @@ class EliteController extends Controller
 
         $mobile = $request->mobile;
         $user = User::where('mobile',$mobile)->first();
-        if($user->kyc_status == '0'){
+        if(!$user || $user->kyc_status == '0'){
             $res = [
                 'success' => false,
-                'message' => "User KYC Incomplete. Try again after KYC verification!"
+                'message' => !$user ? "User not found!" : "User KYC Incomplete. Try again after KYC verification!"
             ];
-            return response()->json($res, 200); 
+            return response()->json($res, 200);
         }
         if($request->user()->kyc_status == '0'){
             $res = [
