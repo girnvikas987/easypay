@@ -51,7 +51,7 @@ class PaymentMethodResource extends Resource
                                 $filePath = $state[0]; 
                                 
                                 // Generate the full URL for the uploaded file
-                                $imageUrl = 'https://earnfarmx.com/' . Storage::url('assets/images/' . $filePath);
+                                $imageUrl = env('APP_URL') . '/' . Storage::url('assets/images/' . $filePath);
                                 
                                 // Update the 'image' field with the full URL
                                 $set('image', $imageUrl);

@@ -81,7 +81,7 @@ a.readmore_detail, .scrollToTop{
                         <a href="{{route('home')}}">Home</a>
                     </li>
                     <li>
-                        <a href="https://play.google.com/store/apps/details?id=com.app.s2pay">About</a>
+                        <a href="{{ env('APP_URL') }}">About</a>
                     </li>
                     
                     <li>

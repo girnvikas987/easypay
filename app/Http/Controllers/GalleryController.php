@@ -21,7 +21,7 @@ class GalleryController extends Controller
                                     $links['type'] = $exist->type;
                                     $links['title'] = $exist->title;
                              }else{
-                                    $links['file'] = "https://metvallypay.com/storage/".$exist->file; 
+                                    $links['file'] = env('APP_URL') . '/storage/' . $exist->file;
                                     $links['video'] = '';
                                     $links['status'] = $exist->status;
                                     $links['type'] = $exist->type;

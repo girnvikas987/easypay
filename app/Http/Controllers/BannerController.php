@@ -16,7 +16,7 @@ class BannerController extends Controller
                     foreach($exists as $exist){
                                     $links = [];
                               
-                                    $links['image'] = "https://s2pay.life/storage/".$exist->image;  
+                                    $links['image'] = env('APP_URL') . '/storage/' . $exist->image;
                                     $links['status'] = $exist->status;
                                     $links['type'] = $exist->type;
                                     $links['title'] = $exist->title; 
