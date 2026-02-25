@@ -20,3 +20,29 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+# Large media files (images/videos > 500KB)
+/public/mtheme1/assets/images/gg.jpg
+/public/mtheme1/assets/images/faq12.jpg
+/public/mtheme1/assets/images/chart_meta4.png
+/public/mtheme1/assets/images/stock_data.mp4
+/public/mtheme1/assets/images/metavally.png
+/public/mtheme1/assets/images/banner/kdr-gold-mine.png
+/public/mtheme1/assets/images/banner/kdr_gold_coin2.png
+/public/mtheme1/assets/images/banner/kdr-gold.png
+/public/mtheme1/assets/images/meta_tiger.png
+/public/mtheme1/assets/images/meta1-5.png
+/public/mtheme1/assets/images/banner/kdr-coin.png
+/public/mtheme1/assets/images/banner/max1.png
+/public/mtheme1/assets/images/banner/banner-bg2.png
+/public/mtheme1/assets/fonts/la-brands-400.svg
+/public/mtheme1/assets/fonts/la-solid-900.svg
+/public/mtheme1/assets/webfonts/fa-solid-900.svg
+/public/mtheme1/assets/webfonts/fa-brands-400.svg
+/public/mtheme1/assets/images/faq/bg.png
+/public/mtheme1/assets/images/mobil12.jpg
+/public/mtheme1/assets/images/blog/bg3.png
+/public/mtheme1/assets/images/blog/bg.png
+
+# SQL backups
+*.sql
