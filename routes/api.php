@@ -68,85 +68,23 @@ Route::post('forgot_password', [PasswordController::class, 'generateNewPassword'
 Route::post('forgot_mpin', [PasswordController::class, 'generateNewMpin']);
 Route::get('get_app_version', [AppController::class, 'getVersion']);
 Route::post('test_gold', [GoldController::class, 'test']);
-Route::get('roiincmcls',function(){
-        return RoiDistribute::roiClosing();
-});
-Route::get('roifourincmcls',function(){
-        return RoiDistribute::roiFourClosing();
-});
-Route::get('dailyincmcls',function(){
-        return Distribute::clearDailyInmcome();
-});
-Route::get('royalty_distribution',function(){
-        return Distribute::RoyaltyDistribution();
-});
-Route::get('royalty_recharge_distribution',function(){
-        return Distribute::RoyaltyRechargeDistribution();
-});
-Route::get('loan_pay',function(){
-        return Distribute::loanDistribution();
-});
-Route::get('is_Ebike_eligible',function(){
-        return Distribute::IsEbikeEligible();
-});
-Route::get('is_recharge_trip_eligible',function(){
-        return Distribute::IsRechargeTripEligible();
-});
+// ============================================================================
+// REMOVED: 25+ unprotected financial routes (security fix)
+// These have been converted to artisan commands — run via scheduler or CLI:
+//   php artisan distribute:roi
+//   php artisan distribute:royalty
+//   php artisan distribute:loan
+//   php artisan distribute:jackpot
+//   php artisan distribute:ebike
+//   php artisan distribute:tour
+//   php artisan distribute:elite
+//   php artisan income:clear-daily
+//   php artisan jackpot:join-users
+//   php artisan check:eligibility
+//   php artisan fetch:gold-price
+//   php artisan withdraw:clear-requests --confirm
+// ============================================================================
 
-Route::get('fetch_gold_live',function(){
-        return Distribute::fetchgold();
-});
-
-Route::get('Jack_pot_distribution',function(){
-        return Distribute::JackpotDistribution();
-});
-Route::get('Jack_pot_weekly_distribution',function(){
-        return Distribute::JackpotWeeklyDistribution();
-});
-Route::get('anything_testing',function(){
-        return Distribute::testAnyThing();
-});
-// Route::get('Refferal_Income',function(){
-//         return Distribute::RefferalIncome();
-// });
-Route::get('jackpot_users',function(){
-        return Distribute::joinJackpotDrawUsers();
-});
-Route::get('jackpot_users_weekly',function(){
-        return Distribute::joinJackpotDrawUsersWeekly();
-});
-
-Route::get('ebike_daily_income',function(){
-        return Distribute::ebikeDailyIncome();
-});
-Route::get('distrbute_ebike_binary_macth',function(){
-        return Distribute::distrbuteEbikeBinaryMacth();
-});
-
-Route::get('distrbute_ebike_binary_income',function(){
-        return Distribute::distrbuteEbikeBinaryIncome();
-});
-Route::get('tour_daily_income',function(){
-        return Distribute::tourDailyIncome();
-});
-Route::get('distrbute_tour_binary_macth',function(){
-        return Distribute::distrbuteTourBinaryMacth();
-});
-Route::get('elite_daily_income',function(){
-        return Distribute::eliteDailyIncome();
-});
-Route::get('elite_daily_new_income',function(){
-        return Distribute::eliteDailynewIncome();
-});
-Route::get('distrbute_elite_binary_macth',function(){
-        return Distribute::distrbuteEliteBinaryMacth();
-});
-Route::get('distrbute_elite_binary_income',function(){
-        return Distribute::distrbuteEliteBinaryIncome();
-});
-Route::get('clr_withdraw_request',function(){
-        return Distribute::clrRequest();
-});
 Route::get('make_handle_callback', [FundRequestController::class, 'handle']);
 
 

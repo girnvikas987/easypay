@@ -117,7 +117,7 @@ class FundRequestController extends Controller
                   CURLOPT_FOLLOWLOCATION => true,
                   CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                   CURLOPT_CUSTOMREQUEST => 'POST',
-                  CURLOPT_POSTFIELDS => 'customer_mobile='.$mobile.'&user_token=501d4129ba8fbb1815615687939e6d4d&amount='.$amount.'&order_id='.$transactionId.'&redirect_url=https%3A%2F%2Feasydigipays.com%2Fpayment%2Fsuccess%3Ftransaction_id%3D'.$transactionId.'&remark1=&remark2=',
+                  CURLOPT_POSTFIELDS => 'customer_mobile='.$mobile.'&user_token=' . env('IMB_USER_TOKEN') . '&amount='.$amount.'&order_id='.$transactionId.'&redirect_url=' . urlencode(env('APP_URL') . '/payment/success?transaction_id=' . $transactionId) . '&remark1=&remark2=',
                   CURLOPT_HTTPHEADER => array(
                     'Content-Type: application/x-www-form-urlencoded'
                   ),
@@ -324,7 +324,7 @@ class FundRequestController extends Controller
                     $curl = curl_init();
 
                     curl_setopt_array($curl, array(
-                      CURLOPT_URL => 'http://103.205.64.251:8080/clickncashapi/rest/auth/transaction/generate-upi',
+                      CURLOPT_URL => '' . env('CLICKNCASH_API_URL', 'https://103.205.64.251:8080/clickncashapi/rest') . '/auth/transaction/generate-upi',
                       CURLOPT_RETURNTRANSFER => true,
                       CURLOPT_ENCODING => '',
                       CURLOPT_MAXREDIRS => 10,
@@ -486,7 +486,7 @@ class FundRequestController extends Controller
               $curl = curl_init();
 
                 curl_setopt_array($curl, array(
-                  CURLOPT_URL => 'http://103.205.64.251:8080/clickncashapi/rest/auth/generateToken',
+                  CURLOPT_URL => '' . env('CLICKNCASH_API_URL', 'https://103.205.64.251:8080/clickncashapi/rest') . '/auth/generateToken',
                   CURLOPT_RETURNTRANSFER => true,
                   CURLOPT_ENCODING => '',
                   CURLOPT_MAXREDIRS => 10,
@@ -836,7 +836,7 @@ class FundRequestController extends Controller
         //   CURLOPT_FOLLOWLOCATION => true,
         //   CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         //   CURLOPT_CUSTOMREQUEST => 'POST',
-        //   CURLOPT_POSTFIELDS => 'key=54122137-6fc4-44fe-b983-53e083e50a5a&client_txn_id='.$transactionId.'&amount='.$amount.'&p_info=Product%20Name&customer_name='.$decoded_msg.'&customer_email='.$email.'&customer_mobile='.$mobile.'&redirect_url=https%3A%2F%2Fs2pay.life%2Fapi%2Fpayment-success&udf1=user%20defined%20field%201&udf2=user%20defined%20field%202&udf3=user%20defined%20field%203&=',
+        //   CURLOPT_POSTFIELDS => 'key=' . env('EKQR_PAYMENT_KEY') . '&client_txn_id='.$transactionId.'&amount='.$amount.'&p_info=Product%20Name&customer_name='.$decoded_msg.'&customer_email='.$email.'&customer_mobile='.$mobile.'&redirect_url=' . urlencode(env('APP_URL') . '/api/payment-success') . '&udf1=user%20defined%20field%201&udf2=user%20defined%20field%202&udf3=user%20defined%20field%203&=',
         //   CURLOPT_HTTPHEADER => array(
         //     'Content-Type: application/x-www-form-urlencoded'
         //   ),
@@ -865,7 +865,7 @@ class FundRequestController extends Controller
               CURLOPT_FOLLOWLOCATION => true,
               CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
               CURLOPT_CUSTOMREQUEST => 'POST',
-              CURLOPT_POSTFIELDS => 'key=54122137-6fc4-44fe-b983-53e083e50a5a&client_txn_id='.$transactionId.'&amount='.$amount.'&p_info=Product%2520Name&customer_name='.$decoded_msg.'&customer_email='.$email.'&customer_mobile='.$mobile.'&redirect_url=https%3A%2F%2Fs2pay.life%2Fapi%2Fpayment-success&udf1=user%2520defined%2520field%25201&udf2=user%2520defined%2520field%25201&udf3=user%2520defined%2520field%25201',
+              CURLOPT_POSTFIELDS => 'key=' . env('EKQR_PAYMENT_KEY') . '&client_txn_id='.$transactionId.'&amount='.$amount.'&p_info=Product%2520Name&customer_name='.$decoded_msg.'&customer_email='.$email.'&customer_mobile='.$mobile.'&redirect_url=' . urlencode(env('APP_URL') . '/api/payment-success') . '&udf1=user%2520defined%2520field%25201&udf2=user%2520defined%2520field%25201&udf3=user%2520defined%2520field%25201',
               CURLOPT_HTTPHEADER => array(
                 'Content-Type: application/x-www-form-urlencoded'
               ),
@@ -951,7 +951,7 @@ class FundRequestController extends Controller
                   CURLOPT_FOLLOWLOCATION => true,
                   CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                   CURLOPT_CUSTOMREQUEST => 'POST',
-                  CURLOPT_POSTFIELDS => 'key=54122137-6fc4-44fe-b983-53e083e50a5a&client_txn_id='.$client_txn_id.'&txn_date='.$txn_date,
+                  CURLOPT_POSTFIELDS => 'key=' . env('EKQR_PAYMENT_KEY') . '&client_txn_id='.$client_txn_id.'&txn_date='.$txn_date,
                   CURLOPT_HTTPHEADER => array(
                     'Content-Type: application/x-www-form-urlencoded'
                   ),
@@ -1007,7 +1007,7 @@ class FundRequestController extends Controller
 
     public function callback_gateway(Request $request){
                 $input = $request->all();
-                $saltKey = '1bcb474a-51a6-4bf0-b3b5-98e1e60c9ac6';
+                $saltKey = env('PHONEPE_SALT_KEY');
                 $saltIndex = 1;
                 $resdsult  = base64_decode($input['response']);
                  $test = Test::create([

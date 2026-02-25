@@ -341,8 +341,8 @@ class ProfileController extends Controller
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => 'POST',
         CURLOPT_POSTFIELDS =>'{
-            "merchantId": "AP390079",
-            "merchantKey": "80CCB55178",
+            "merchantId": "' . env('CYRUS_VERIFY_MERCHANT_ID') . '",
+            "merchantKey": "' . env('CYRUS_VERIFY_MERCHANT_KEY') . '",
              "panNumber": "' . $pan_no . '",
             "type": "PANCARD",
             "txnid": "' . $transactionId . '"
@@ -452,8 +452,8 @@ class ProfileController extends Controller
           CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
           CURLOPT_CUSTOMREQUEST => 'POST',
           CURLOPT_POSTFIELDS =>'{
-            "merchantId": "AP390079",
-            "merchantKey": "80CCB55178",
+            "merchantId": "'.env('CYRUS_VERIFY_MERCHANT_ID').'",
+            "merchantKey": "'.env('CYRUS_VERIFY_MERCHANT_KEY').'",
             "Account":"'.$account.'",
             "Ifsc": "'.$ifsc_code.'",
             "type": "ACCOUNT VERIFICATION",

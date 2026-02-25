@@ -48,10 +48,10 @@ class CryptoApiController extends Controller
         $tx_id=$CryptoApiPayment->tx_id;
 
             $curl = curl_init();
-            $callback_url = "https://test.mlmdx.com/api/crypto/callback";
+            $callback_url = env('APP_URL') . "/api/crypto/callback";
             curl_setopt_array($curl, [
             
-            CURLOPT_URL => "https://test.mlmdx.com/CryptoApi/public/api/get-address",
+            CURLOPT_URL => env('CRYPTO_API_URL', 'https://test.mlmdx.com/CryptoApi/public/api/get-address'),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
@@ -109,7 +109,7 @@ class CryptoApiController extends Controller
 
         $tx_id=$request->tx_id;
         /// check api key
-        if($request->api_key==""){
+        if($request->api_key != "" && $request->api_key == env('CRYPTO_CALLBACK_API_KEY')){
             $CryptoApiPayment = CryptoApiPayment::where('tx_id',$tx_id)->whereIn('status',['pending','proceed'])->first();
             
             if($CryptoApiPayment)

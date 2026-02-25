@@ -229,7 +229,7 @@ class DashboardController extends Controller
                 foreach($exists as $exist){
                     $links = [];
 
-                    $links['image'] = "https://easydigipays.com/storage/".$exist->image;
+                    $links['image'] = env('APP_URL') . '/storage/' . $exist->image;
                     $links['status'] = $exist->status;
                     $links['type'] = $exist->type;
                     $links['title'] = $exist->title;
@@ -352,7 +352,7 @@ class DashboardController extends Controller
                         $curl = curl_init();
 
                         curl_setopt_array($curl, array(
-                          CURLOPT_URL => 'https://smsmaa.com/SMS_API/sendsms.php?username=welcomejoykrl&password=KRL999&mobile='.$mobile.'&sendername=WELJOY&message=New%20Registration%20OTP%20'.$otp.'%20WELCOME%20JOY%20TOURS%20AND%20TRAVELS%20OPC%20PVT.LTD%0A&routetype=1',
+                          CURLOPT_URL => env('SMS_API_URL', 'https://smsmaa.com/SMS_API/sendsms.php') . '?username=' . env('SMS_USERNAME') . '&password=' . env('SMS_PASSWORD') . '&mobile=' . $mobile . '&sendername=' . env('SMS_SENDER', 'WELJOY') . '&message=New%20Registration%20OTP%20'.$otp.'%20WELCOME%20JOY%20TOURS%20AND%20TRAVELS%20OPC%20PVT.LTD%0A&routetype=1',
                           CURLOPT_RETURNTRANSFER => true,
                           CURLOPT_ENCODING => '',
                           CURLOPT_MAXREDIRS => 10,

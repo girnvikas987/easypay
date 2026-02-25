@@ -30,9 +30,10 @@ class BaseController extends Controller
                     'status'=>0,
                 ]);
               }
-            //   return redirect('https://play.google.com/store/apps/details?id=com.app.s2pay');
-            //   $url = 'https://play.google.com/store/apps/details?id=com.app.s2pay&referrer=user%3D987654321';
-              $url = 'https://play.google.com/store/apps/details?id=com.app.s2pay&referrer=user%3D'.$reffera.'%26position%3D'.$position;
+            //   return redirect('https://play.google.com/store/apps/details?id=' . env('PLAY_STORE_APP_ID', 'com.app.easydigipays'));
+            //   $url = 'https://play.google.com/store/apps/details?id=' . env('PLAY_STORE_APP_ID', 'com.app.easydigipays') . '&referrer=user%3D987654321';
+              $appId = env('PLAY_STORE_APP_ID', 'com.app.easydigipays');
+              $url = 'https://play.google.com/store/apps/details?id='.$appId.'&referrer=user%3D'.$reffera.'%26position%3D'.$position;
               return redirect($url);
         }elseif($request->has('referral')){
             $reffera  = $request->input('referral');
@@ -49,9 +50,8 @@ class BaseController extends Controller
                     'status'=>0,
                 ]);
               }
-            //   return redirect('https://play.google.com/store/apps/details?id=com.app.s2pay');
-            //   $url = 'https://play.google.com/store/apps/details?id=com.app.s2pay&referrer=user%3D987654321';
-              $url = 'https://play.google.com/store/apps/details?id=com.app.s2pay&referrer=user%3D'.$reffera;
+              $appId = env('PLAY_STORE_APP_ID', 'com.app.easydigipays');
+              $url = 'https://play.google.com/store/apps/details?id='.$appId.'&referrer=user%3D'.$reffera;
               return redirect($url);
 
         }

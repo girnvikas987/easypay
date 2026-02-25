@@ -289,13 +289,13 @@ class LoanController extends Controller
     public function sendActiveLoanMsg($msg,$mobnile){
      
        
-            $apiKey = "71a9b0fbe3cb414583372e7c5664a5b4";
+            $apiKey = env('WHATSAPP_API_KEY');
              
               
             $ch = curl_init();
             
             // Set the URL and other options
-            curl_setopt($ch, CURLOPT_URL, "http://whatsapp.click4bulksms.in/wapp/api/send?apikey=$apiKey&mobile=$mobnile&msg=$msg");
+            curl_setopt($ch, CURLOPT_URL, "" . env('WHATSAPP_API_URL', 'https://whatsapp.click4bulksms.in/wapp/api/send') . "?apikey=$apiKey&mobile=$mobnile&msg=$msg");
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_TIMEOUT, 30);
             

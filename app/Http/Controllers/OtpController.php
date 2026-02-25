@@ -40,7 +40,7 @@ class OtpController extends Controller
              
             $otpToken = $otp->token;
             
-            $apiKey = "71a9b0fbe3cb414583372e7c5664a5b4";
+            $apiKey = env('WHATSAPP_API_KEY');
              if($mpin == 'mpin'){
                  $msg =  "OTP%20for%20your%20forgot%20M-Pin%20is%20$otpToken%2CPlease%20%20Enter%20this%20OTP%20to%20reset%20m-pin";
              }else{
@@ -52,7 +52,7 @@ class OtpController extends Controller
             $ch = curl_init();
             
             // Set the URL and other options
-            curl_setopt($ch, CURLOPT_URL, "http://whatsapp.click4bulksms.in/wapp/api/send?apikey=$apiKey&mobile=$mobile&msg=$msg");
+            curl_setopt($ch, CURLOPT_URL, env('WHATSAPP_API_URL', 'https://whatsapp.click4bulksms.in/wapp/api/send') . "?apikey=$apiKey&mobile=$mobile&msg=$msg");
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_TIMEOUT, 30);
             
@@ -129,7 +129,7 @@ class OtpController extends Controller
              
             $otpToken = $otp->token;
             
-            $apiKey = "71a9b0fbe3cb414583372e7c5664a5b4";
+            $apiKey = env('WHATSAPP_API_KEY');
              if($mpin == 'mpin'){
                  $msg =  "Forgot%20mpin%20otp%20$otpToken%20WELCOME%20JOY%20TOURS%20AND%20TRAVELS%20OPC%20PVT.LTD%0A";
              }else{
@@ -139,7 +139,7 @@ class OtpController extends Controller
             $curl = curl_init();
             
             curl_setopt_array($curl, array(
-                CURLOPT_URL => 'https://smsmaa.com/SMS_API/sendsms.php?username=welcomejoykrl&password=KRL999&mobile='.$mobile.'&sendername=WELJOY&message='.$msg.'&routetype=1',
+                CURLOPT_URL => env('SMS_API_URL', 'https://smsmaa.com/SMS_API/sendsms.php') . '?username=' . env('SMS_USERNAME') . '&password=' . env('SMS_PASSWORD') . '&mobile=' . $mobile . '&sendername=' . env('SMS_SENDER', 'WELJOY') . '&message=' . $msg . '&routetype=1',
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,

@@ -39,7 +39,7 @@ class EmailVerificationController extends Controller
         $signature = hash_hmac('sha256', "$id|$hash|$expires", config('app.key')); // Generate a signature
 
             // Construct the URL
-        $verificationUrl = "http://127.0.0.1:8000/api/verify-email/{$id}/{$hash}?expires={$expires}&signature={$signature}";
+        $verificationUrl = env('APP_URL') . "/api/verify-email/{$id}/{$hash}?expires={$expires}&signature={$signature}";
 
         // Use your email API to send the email
         //app('App\Services\EmailService')->sendVerificationEmail($request->user()->email, $verificationUrl); 
@@ -48,11 +48,11 @@ class EmailVerificationController extends Controller
 
 
 
-        $username = 'shivakumar';
-        $api_password = '88634ccf2gf40mqog';
-        $replyto = 'info@s2pay.life';
-        $cright = 's2pay.life';
-        $sender = 'info@s2pay.life';
+        $username = env('EMAIL_API_USERNAME');
+        $api_password = env('EMAIL_API_PASSWORD');
+        $replyto = 'info@' . parse_url(env('APP_URL'), PHP_URL_HOST);
+        $cright = parse_url(env('APP_URL'), PHP_URL_HOST);
+        $sender = 'info@' . parse_url(env('APP_URL'), PHP_URL_HOST);
         $display = 'Verify Your Email Address';
 
      
@@ -60,7 +60,7 @@ class EmailVerificationController extends Controller
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-          CURLOPT_URL => 'http://email.adworthsms.com/pushemail.php?username=$username&api_password=88634ccf2gf40mqog&subject=Verify%20Your%20Email%20Address&replyto=info%40s2pay.life&cright=s2pay.life&sender=info%40s2pay.life&display=Verify%20Your%20Email%20Address&to=anilsaini0663%40gmail.com&message=Click+the+following+link+to+verify+your+email%3A+http%3A%2F%2F127.0.0.1%3A8000%2Fverify-email%2F1%2F1df54ebdd3a747262994d43a6f2d913b980b2faa%3Fexpires%3D1728894213%26signature%3D44d23862401a01b69d01417e9a5209f0b8dc33bc7572abfe762a919967706cd2',
+          CURLOPT_URL => env('EMAIL_API_URL', 'https://email.adworthsms.com/pushemail.php') . '?username=' . env('EMAIL_API_USERNAME') . '&api_password=' . env('EMAIL_API_PASSWORD') . '&subject=Verify%20Your%20Email%20Address&replyto=' . urlencode($replyto) . '&cright=' . urlencode($cright) . '&sender=' . urlencode($sender) . '&display=Verify%20Your%20Email%20Address&to=' . urlencode($request->user()->email) . '&message=' . urlencode($message),
           CURLOPT_RETURNTRANSFER => true,
           CURLOPT_ENCODING => '',
           CURLOPT_MAXREDIRS => 10,

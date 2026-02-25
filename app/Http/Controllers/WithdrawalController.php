@@ -22,6 +22,7 @@ use App\Rules\WithdrawCheck;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Validator;
 
 class WithdrawalController extends Controller
@@ -230,9 +231,37 @@ class WithdrawalController extends Controller
     }
 
 
-    //////////////////////////////////////////scan and pay////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////Payment Callbacks////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    //////////////////////////////////////////scan and pay////////////////////////////////////////////////////////////////////////////////////////////////////
+    public function callBack_ScanPay(Request $request)
+    {
+        Log::channel('daily')->info('callBack_ScanPay received', $request->all());
+        // TODO: Implement ScanPay callback processing when payment gateway is integrated
+        return response()->json(['status' => 'received'], 200);
+    }
+
+    public function callBack_Payout(Request $request)
+    {
+        Log::channel('daily')->info('callBack_Payout received', $request->all());
+        // TODO: Implement Payout callback processing when payment gateway is integrated
+        return response()->json(['status' => 'received'], 200);
+    }
+
+    public function callBack_Click_Payout(Request $request)
+    {
+        Log::channel('daily')->info('callBack_Click_Payout received', $request->all());
+        // TODO: Implement ClicknCash Payout callback processing
+        return response()->json(['status' => 'received'], 200);
+    }
+
+    public function callBack_New_Click_Payout(Request $request)
+    {
+        Log::channel('daily')->info('callBack_New_Click_Payout received', $request->all());
+        // TODO: Implement New ClicknCash Payout callback processing
+        return response()->json(['status' => 'received'], 200);
+    }
+
+    //////////////////////////////////////////Payment Callbacks End////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
     public function withdrawHistory(Request $request)
