@@ -67,19 +67,27 @@ class BaseController extends Controller
     }
 
     public function fetchReferral(Request $request){
-        $ipAddress =  $request->ip;
-        $exists = ReferralData::where('ip',$ipAddress)->first();
-        if($exists){
-             $response = [
-                'success' => true,
-                'data' =>  $exists,
-                'message' => "Referral data fetch successfully."
-            ];
-        }else{
+        try {
+            $ipAddress =  $request->ip;
+            $exists = ReferralData::where('ip',$ipAddress)->first();
+            if($exists){
+                 $response = [
+                    'success' => true,
+                    'data' =>  $exists,
+                    'message' => "Referral data fetch successfully."
+                ];
+            }else{
+                $response = [
+                    'success' => false,
+                    'data' =>  '',
+                    'message' => 'Ip Data not found!'
+                ];
+            }
+        } catch (\Exception $e) {
             $response = [
                 'success' => false,
                 'data' =>  '',
-                'message' => 'Ip Data not found!'
+                'message' => 'Referral data not available.'
             ];
         }
         return response()->json($response, 200);

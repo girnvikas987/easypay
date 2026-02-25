@@ -722,25 +722,20 @@ class GoldController extends Controller
 
 
     public function test(){
-
-         $allInvesters = GoldInvestment::all();
-         $ttlinactive = 0;
-         foreach($allInvesters as $invester){
-
-            $user = User::where('id',$invester->user_id)->first();
-               
-            if($user->active_status->value == 0){
-                $user->active_status = 1;
-                $user->save();
-                $ttlinactive++;
+        try {
+            $allInvesters = GoldInvestment::all();
+            $ttlinactive = 0;
+            foreach($allInvesters as $invester){
+                $user = User::where('id',$invester->user_id)->first();
+                if($user && $user->active_status->value == 0){
+                    $user->active_status = 1;
+                    $user->save();
+                    $ttlinactive++;
+                }
             }
-
-                   
-
-         }
-         print_r($ttlinactive);
-         die();
-
-             
+            return response()->json(['success' => true, 'data' => $ttlinactive, 'message' => 'Done'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'data' => '', 'message' => 'Gold investments not available.'], 200);
+        }
     }
 }

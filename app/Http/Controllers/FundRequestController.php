@@ -18,6 +18,7 @@ use App\Models\Wallet;
 use App\Models\Support;
 use Illuminate\Support\Str;
 use Ixudra\Curl\Facades\Curl;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
 use Stringable;
@@ -998,11 +999,8 @@ class FundRequestController extends Controller
             }
 
         }
-        $test = Test::create([
-                'remark' => $client_txn_id,
-                'updated_at' => now(),
-                'created_at' => now(),
-        ]);
+        Log::info('callBackFundRequest processed', ['client_txn_id' => $client_txn_id]);
+        return response()->json(['status' => 'received'], 200);
     }
 
     public function callback_gateway(Request $request){
@@ -1010,11 +1008,7 @@ class FundRequestController extends Controller
                 $saltKey = env('PHONEPE_SALT_KEY');
                 $saltIndex = 1;
                 $resdsult  = base64_decode($input['response']);
-                 $test = Test::create([
-                                'remark' => $resdsult,
-                                'updated_at' => now(),
-                                'created_at' => now(),
-                    ]);
+                Log::info('callback_gateway received', ['response' => $resdsult]);
                 $result = json_decode($resdsult,true);
                 if($result['success'] == true){
 

@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Razorpay\Api\Api;
 use Razorpay\Api\Errors\SignatureVerificationError;
+use Illuminate\Support\Facades\Log;
 use Validator;
 class PaymentController extends Controller
 {
@@ -208,17 +209,11 @@ class PaymentController extends Controller
         }
 
         if ($success === true) {
-            // Update database with success data
-            // Redirect to success page
-
-            Test::creat([
-                'remark'=>"failed",
-            ]);
-            
+            Log::info('Razorpay payment verified', ['payment_id' => $request->razorpay_payment_id]);
+            return response()->json(['success' => true, 'message' => 'Payment verified'], 200);
         } else {
-            Test::creat([
-                'remark'=>"failed",
-            ]);
+            Log::warning('Razorpay payment failed', ['error' => $error]);
+            return response()->json(['success' => false, 'message' => $error], 200);
         }
     }
 }

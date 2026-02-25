@@ -657,5 +657,9 @@ class RechargeController extends Controller
         return response()->json($response, 200);
     }
 
+    public function call_recharge(Request $request){
+        return response()->json(['success' => false, 'message' => 'Missing required parameters.'], 200);
+    }
+
 }
 

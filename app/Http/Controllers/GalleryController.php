@@ -48,4 +48,13 @@ class GalleryController extends Controller
         
         return response()->json($response, 200);
      }
+
+     public function notify(Request $request){
+        $response = [
+            'success' => true,
+            'data' => '',
+            'message' => 'Notification received.'
+        ];
+        return response()->json($response, 200);
+     }
 }

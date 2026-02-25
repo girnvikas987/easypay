@@ -453,6 +453,7 @@ class AuthController extends Controller
 
 
     public function checkVoice(){
+        try {
         $allUser = User::where('kyc_status', '0')->whereNotNull('voice_id')->latest()->get();
 
         
@@ -528,7 +529,9 @@ class AuthController extends Controller
 
 
         }
-       
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Voice check not available.'], 200);
+        }
     }
 
 public function verifyBothOtp(Request $request){
@@ -1488,10 +1491,22 @@ public function verifyBothOtp(Request $request){
     //     //$permission = Permission::create(['name' => 'edit articles']);
     //     $user->assignRole($role);
     //    die();
+         $validator = Validator::make($request->all(), [
+             'email' => ['required', 'string'],
+             'password' => ['required', 'string'],
+         ]);
+
+         if ($validator->fails()) {
+             return response()->json([
+                 'success' => false,
+                 'message' => $validator->errors(),
+             ], 200);
+         }
+
          $credentials = $request->only('email', 'password');
          $credentials['username'] = $credentials['email'];
         $user = null;
-     
+
         // Attempt to authenticate with email
         if (Auth::attempt(['email' => $credentials['email'], 'password' => $credentials['password']])) {
             $user = Auth::user();
