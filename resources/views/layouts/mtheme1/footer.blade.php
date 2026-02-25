@@ -12,7 +12,7 @@
             <div class="row">
                 <div class="col-xl-6 col-lg-6 col-sm-6">
                     <div class="footer__widget">
-                        <h3 class="widget-title"><img src="{{asset('mtheme1/assets/images/S2_pay.png')}}" class="" alt="{{env('APP_NAME')}}" style="width:100px;height:"></h3>
+                        <h3 class="widget-title"><img src="{{asset('mtheme1/assets/images/logo.png')}}" class="" alt="{{env('APP_NAME')}}" style="width:100px;height:"></h3>
                         <p>Your satisfaction is our success. We are dedicated to providing top-notch customer service, addressing your queries and concerns promptly.</p>
                        <div class="social_links">
                            <a href="#"><i class="fa fa-instagram" aria-hidden="true"></i></a>

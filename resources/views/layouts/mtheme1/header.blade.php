@@ -75,7 +75,7 @@ a.readmore_detail, .scrollToTop{
     <div class="header-bottom">
         <div class="container">
             <div class="header-bottom-area">
-                <div class="logo"><a href="/"><img src="{{asset('mtheme1/assets/images/S2_pay.png')}}" class="" alt="{{env('APP_NAME')}}" style="width:;height:"></a></div>
+                <div class="logo"><a href="/"><img src="{{asset('mtheme1/assets/images/logo.png')}}" class="" alt="{{env('APP_NAME')}}" style="width:;height:"></a></div>
                  <ul class="menu">
                     <li>
                         <a href="{{route('home')}}">Home</a>
