@@ -12,8 +12,11 @@
             <div class="row">
                 <div class="col-xl-6 col-lg-6 col-sm-6">
                     <div class="footer__widget">
-                        <h3 class="widget-title"><img src="{{asset('mtheme1/assets/images/logo.png')}}" class="" alt="{{env('APP_NAME')}}" style="width:100px;height:"></h3>
+                        <h3 class="widget-title"><img src="{{asset('mtheme1/assets/images/peasylogo.png')}}" class="" alt="{{env('APP_NAME')}}" style="width:100px;height:"></h3>
                         <p>Your satisfaction is our success. We are dedicated to providing top-notch customer service, addressing your queries and concerns promptly.</p>
+                      
+                      <p>Address: Yamunanagar Haryana 135001</p>
+                      <p>Mobile: 7404455669 </p>
                        <div class="social_links">
                            <a href="#"><i class="fa fa-instagram" aria-hidden="true"></i></a>
                        </div>
@@ -40,7 +43,7 @@
                         <li><a href="{{route('conditions')}}">Terms and Conditions </a></li> 
                                <li><a href="{{route('privacy')}}">Privacy and Policy</a></li>
                                <!--<li><a href="{{route('return')}}">Return Policy</a></li>-->
-                               <!--<li><a href="{{route('refund')}}">Refund Policy</a></li>-->
+                               <li><a href="{{route('refund')}}">Refund Policy</a></li>
                                <!--<li><a href="register">Register</a></li>-->
                             
                     
@@ -54,7 +57,7 @@
     <div class="footer-bottom">
         <div class="container">
             <p class="copyright text-center py-3">
-                Copyright &copy; 2024 {{env('APP_NAME')}} All Rights Reserved.
+                Copyright &copy; 2025 {{env('APP_NAME')}} All Rights Reserved.
             </p>
         </div>
     </div>

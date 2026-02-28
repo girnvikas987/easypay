@@ -1,7 +1,9 @@
 
 <style>
     :root {
-    --bg:#589bff;
+    --bg:#f99a76;
+    --text_color:#343434;
+    --light_color:#1e1e1e;
 }
 .header-top{
     display:none;
@@ -60,6 +62,9 @@ a.readmore_detail, .scrollToTop{
 .footer__widget .footer-links li{
     border:none !important;
 }
+
+
+
 </style>
 
 
@@ -75,13 +80,13 @@ a.readmore_detail, .scrollToTop{
     <div class="header-bottom">
         <div class="container">
             <div class="header-bottom-area">
-                <div class="logo"><a href="/"><img src="{{asset('mtheme1/assets/images/logo.png')}}" class="" alt="{{env('APP_NAME')}}" style="width:;height:"></a></div>
+                <div class="logo"><a href="/"><img src="{{asset('mtheme1/assets/images/peasylogo.png')}}" class="" alt="{{env('APP_NAME')}}" style="width:;height:"></a></div>
                  <ul class="menu">
                     <li>
                         <a href="{{route('home')}}">Home</a>
                     </li>
                     <li>
-                        <a href="{{ env('APP_URL') }}">About</a>
+                        <a href="#">About</a>
                     </li>
                     
                     <li>
