@@ -229,7 +229,7 @@ class DashboardController extends Controller
                 foreach($exists as $exist){
                     $links = [];
 
-                    $links['image'] = env('APP_URL') . '/storage/' . $exist->image;
+                    $links['image'] = env('APP_URL') . '/storage/' . $exist->image . '?v=' . $exist->updated_at->timestamp;
                     $links['status'] = $exist->status;
                     $links['type'] = $exist->type;
                     $links['title'] = $exist->title;
