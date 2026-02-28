@@ -57,7 +57,7 @@ Route::post('callBack_click_Payout', [WithdrawalController::class, 'callBack_Cli
 Route::post('callBack_New_Click_Payout', [WithdrawalController::class, 'callBack_New_Click_Payout']);
 Route::post('callBack_payIn', [FundRequestController::class, 'callBack_payIn']);
 Route::any('updateTimer', [GameController::class, 'updateGameTimer']);
-// Route::any('callback', [FundRequestController::class, 'callback_gateway'])->name('phoneGateway');
+Route::any('callback', [FundRequestController::class, 'callback_gateway'])->name('phoneGateway');
 Route::any('callback_fund', [FundRequestController::class, 'callBackFundRequest']);
 Route::get('callback_recharge', [RechargeController::class, 'callback_recharge']);
 Route::get('meeting', [MeetingController::class, 'getMeeting']);
@@ -175,7 +175,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //////////////////////////////////////////////////////////////// Team /////////////////////////////////////////////////////////////////
     Route::post('team', [TeamController::class, 'getGeneration']);
-    Route::post('direct', [TeamController::class, 'directs']);
+    Route::match(['get', 'post'], 'direct', [TeamController::class, 'directs']);
      Route::post('team_history', [TeamController::class, 'getNewGeneration']);
      Route::post('team_historywithfilter', [TeamController::class, 'getNewGenerationWithFilter']);
     //////////////////////////////////////////////////////////////// Team /////////////////////////////////////////////////////////////////
@@ -208,8 +208,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('nominee_kyc', [KycController::class, 'updateNomineeKyc']);
     Route::post('get_aadharotp', [KycController::class, 'getAadharOtp']);
     Route::post('aadhar_kyc', [KycController::class, 'updateAadharKyc']);
-    Route::post('get_kyc', [KycController::class, 'getKycStatus']);
-    Route::post('get_kyc_data', [KycController::class, 'getKycData']);
+    Route::match(['get', 'post'], 'get_kyc', [KycController::class, 'getKycStatus']);
+    Route::match(['get', 'post'], 'get_kyc_data', [KycController::class, 'getKycData']);
     //////////////////////////////////////////////////////////////// kyc /////////////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////////// PDF /////////////////////////////////////////////////////////////////
@@ -233,7 +233,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     /////////////////////////////////bank Data ////////////////////////////////////////////
     Route::post('add_bank', [BankController::class, 'updateBankDetails']);
-    Route::post('get_bank', [BankController::class, 'getBankData']);
+    Route::match(['get', 'post'], 'get_bank', [BankController::class, 'getBankData']);
     Route::post('get_kyc_details', [BankController::class, 'getNewBankData']);
     Route::post('delete_bank_details', [BankController::class, 'deleteBankDetails']);
     /////////////////////////////////bank Data ////////////////////////////////////////////
@@ -259,18 +259,20 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
          //////////////Recharge investment///////////////////////
-    Route::post('operators', [RechargeController::class, 'fetchAndSaveOperators']);
+    Route::match(['get', 'post'], 'operators', [RechargeController::class, 'fetchAndSaveOperators']);
     Route::post('get_operators', [RechargeController::class, 'getOperatorData']);
+    Route::get('operator', [RechargeController::class, 'getOperatorData']); // alias for app compatibility
     // Route::get('get_circles', [RechargeController::class, 'getCircleData']);
      Route::post('recharge_request', [RechargeController::class, 'rechargeRequest']);
+     Route::post('recharge', [RechargeController::class, 'rechargeRequest']); // alias for app compatibility
    Route::post('view_plan', [RechargeController::class, 'viewPlan']);
      Route::post('fetch_bill', [RechargeController::class, 'fetch_bill']);
-    // Route::post('fetch_bill_info', [RechargeController::class, 'fetchfBillinfo']);
-    // Route::post('fetch_bill_info_check', [RechargeController::class, 'fetchfBillinfoCheck']);
+    Route::post('fetch_bill_info', [RechargeController::class, 'fetchfBillinfo']);
+    Route::post('fetch_bill_info_check', [RechargeController::class, 'fetchfBillinfoCheck']);
       Route::post('recharge_history', [RechargeController::class, 'rechargeHistory']);
-    // Route::post('bbps_pay', [RechargeController::class, 'BBPSBillPay']);
-    // Route::post('fastag', [RechargeController::class, 'fetchBillFastag']);
-    // Route::post('fetch_request', [RechargeController::class, 'fetchBillRequest']);
+    Route::post('bbps_pay', [RechargeController::class, 'BBPSBillPay']);
+    Route::post('fastag', [RechargeController::class, 'fetchBillFastag']);
+    Route::post('fetch_request', [RechargeController::class, 'fetchBillRequest']);
     // Route::post('fetch_operator', [RechargeController::class, 'operatorFetch']);
     // Route::get('metro_recharge', [RechargeController::class, 'MetroRecharge']);
 

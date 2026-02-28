@@ -1040,5 +1040,128 @@ class RechargeController extends Controller
         return response()->json(['success' => true, 'data' => [], 'message' => 'City search service coming soon.'], 200);
     }
 
+    public function fetchfBillinfoCheck(Request $request){
+        $validator = Validator::make($request->all(),[
+            'operator' => ['required', 'string'],
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'message' => $validator->errors()], 200);
+        }
+        try {
+            $operator = $request->operator;
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => 'https://www.kwikapi.com/api/v2/bills/getoperatordetail.php?api_key=' . env('KWIKAPI_KEY') . '&operator=' . $operator,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_CUSTOMREQUEST => 'GET',
+            ));
+            $result = json_decode(curl_exec($curl), true);
+            curl_close($curl);
+
+            if ($result && isset($result['status']) && Str::lower($result['status']) == 'success') {
+                return response()->json(['success' => true, 'data' => $result, 'message' => 'Operator details fetched.'], 200);
+            } else {
+                return response()->json(['success' => false, 'data' => $result ?? '', 'message' => $result['message'] ?? 'Failed to fetch operator details.'], 200);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Service unavailable.'], 200);
+        }
+    }
+
+    public function fetchBillRequest(Request $request){
+        $validator = Validator::make($request->all(),[
+            'operator' => ['required', 'string'],
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'message' => $validator->errors()], 200);
+        }
+        try {
+            $operator = $request->operator;
+            $data = $request->data ? json_decode($request->data, true) : [];
+            $number = $data['number'] ?? $request->number ?? '';
+            $mobile = $data['mobile'] ?? $request->mobile ?? '';
+            $amount = $data['amount'] ?? $request->amount ?? 0;
+
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => 'https://www.kwikapi.com/api/v2/bills/validation.php?api_key=' . env('KWIKAPI_KEY') . '&number=' . $number . '&amount=' . $amount . '&opid=' . $operator . '&order_id=' . now()->format('His') . '&mobile=' . $mobile,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_CUSTOMREQUEST => 'GET',
+            ));
+            $result = json_decode(curl_exec($curl), true);
+            curl_close($curl);
+
+            if ($result && isset($result['status']) && Str::lower($result['status']) == 'success') {
+                return response()->json(['success' => true, 'data' => $result, 'message' => 'Bill fetched successfully.'], 200);
+            } else {
+                return response()->json(['success' => false, 'data' => $result ?? '', 'message' => $result['message'] ?? 'Failed to fetch bill.'], 200);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Bill fetch service unavailable.'], 200);
+        }
+    }
+
+    public function BBPSBillPay(Request $request){
+        $validator = Validator::make($request->all(),[
+            'operator' => ['required', 'string'],
+            'mobile' => ['required', 'string'],
+            'amount' => ['required', 'numeric', 'min:1'],
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'message' => $validator->errors()], 200);
+        }
+        try {
+            $opid = $request->operator;
+            $number = $request->account_number ?? $request->mobile;
+            $amount = $request->amount;
+            $mobile = $request->mobile;
+            $walletType = $request->select_wallet ?? $request->wallet_type ?? 'fund_wallet';
+            $transactionId = now()->format('YmdHis') . Str::random(4);
+
+            $user = Auth::user();
+            $wallet = Wallet::where('user_id', $user->id)->first();
+            if (!$wallet || $wallet->$walletType < $amount) {
+                return response()->json(['success' => false, 'message' => 'Insufficient balance in wallet.'], 200);
+            }
+
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => 'https://www.kwikapi.com/api/v2/bills/payment.php?api_key=' . env('KWIKAPI_KEY') . '&number=' . $number . '&amount=' . $amount . '&opid=' . $opid . '&order_id=' . $transactionId . '&mobile=' . $mobile,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_CUSTOMREQUEST => 'GET',
+            ));
+            $result = json_decode(curl_exec($curl), true);
+            curl_close($curl);
+
+            if ($result && isset($result['status']) && Str::lower($result['status']) == 'success') {
+                $wallet->$walletType -= $amount;
+                $wallet->save();
+
+                Recharge::create([
+                    'user_id' => $user->id,
+                    'operator' => $opid,
+                    'number' => $number,
+                    'amount' => $amount,
+                    'type' => $request->recharge_type ?? 'Broadband',
+                    'status' => 1,
+                    'transaction_id' => $transactionId,
+                    'response' => json_encode($result),
+                ]);
+
+                return response()->json(['success' => true, 'data' => $result, 'message' => 'Bill payment successful.'], 200);
+            } else {
+                return response()->json(['success' => false, 'data' => $result ?? '', 'message' => $result['message'] ?? 'Bill payment failed.'], 200);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Bill payment service unavailable.'], 200);
+        }
+    }
+
 }
 

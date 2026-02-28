@@ -168,7 +168,7 @@ class OtpController extends Controller
                 
                         // Extract key and value, trim whitespace
                         $key = trim($pair[0]);
-                        $value = trim($pair[1]);
+                        $value = isset($pair[1]) ? trim($pair[1]) : '';
                 
                         // Check if the key is "Status"
                         if ($key === "Status") {

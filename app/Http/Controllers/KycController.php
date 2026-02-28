@@ -77,17 +77,20 @@ class KycController extends Controller
         // if($result['success'] == true){
             DB::beginTransaction();
             try {
-                $imageName = time().'.'.$request->pan_image->extension();
+                $kycData = [
+                    'pan_no' => $pan_number,
+                    'pan_status' => 0,
+                ];
 
-                $request->pan_image->storeAs('kyc', $imageName);
+                if ($request->hasFile('pan_image')) {
+                    $imageName = time().'.'.$request->pan_image->extension();
+                    $request->pan_image->storeAs('kyc', $imageName);
+                    $kycData['pan_image'] = "app/private/kyc/".$imageName;
+                }
 
                 $kycPan = Kyc::updateOrCreate(
                     ['user_id' => Auth::user()->id],
-                    [
-                        'pan_no' => $pan_number,
-                        'pan_status' => 0,
-                        'pan_image' => "app/private/kyc/".$imageName,
-                    ]
+                    $kycData
                 );
                 DB::commit();
                 $response = [
@@ -147,18 +150,21 @@ class KycController extends Controller
         // if($result['success'] == true){
             DB::beginTransaction();
             try {
-                $imageName = time().'.'.$request->nominee_image->extension();
+                $kycData = [
+                    'nominee_name' => $nominee_name,
+                    'nominee_relation' => $nominee_relation,
+                    'nominee_status' => 0,
+                ];
 
-                $request->nominee_image->storeAs('kyc', $imageName);
+                if ($request->hasFile('nominee_image')) {
+                    $imageName = time().'.'.$request->nominee_image->extension();
+                    $request->nominee_image->storeAs('kyc', $imageName);
+                    $kycData['nominee_image'] = "app/private/kyc/".$imageName;
+                }
 
                 $kycPan = Kyc::updateOrCreate(
                     ['user_id' => Auth::user()->id],
-                    [
-                        'nominee_name' => $nominee_name,
-                        'nominee_relation' => $nominee_relation,
-                        'nominee_status' => 0,
-                        'nominee_image' => "app/private/kyc/".$imageName,
-                    ]
+                    $kycData
                 );
                 DB::commit();
                 $response = [
@@ -318,23 +324,26 @@ class KycController extends Controller
         // if($result['success'] == true){
             DB::beginTransaction();
             try {
+                $kycData = [
+                    'aadhar_no' => $aadhar_no,
+                    'aadhar_status' => 0,
+                ];
 
-                $frontImageName = time() . '_front.' . $request->aadhar_front_image->extension();
-                $request->aadhar_front_image->storeAs('kyc', $frontImageName);
+                if ($request->hasFile('aadhar_front_image')) {
+                    $frontImageName = time() . '_front.' . $request->aadhar_front_image->extension();
+                    $request->aadhar_front_image->storeAs('kyc', $frontImageName);
+                    $kycData['aadhar_front_image'] = "app/private/kyc/".$frontImageName;
+                }
 
-                // For Aadhar Back Image
-                $backImageName = time() . '_back.' . $request->aadhar_back_image->extension();
-                $request->aadhar_back_image->storeAs('kyc', $backImageName);
-
+                if ($request->hasFile('aadhar_back_image')) {
+                    $backImageName = time() . '_back.' . $request->aadhar_back_image->extension();
+                    $request->aadhar_back_image->storeAs('kyc', $backImageName);
+                    $kycData['aadhar_back_image'] = "app/private/kyc/".$backImageName;
+                }
 
                 $transaction = Kyc::updateOrCreate(
                    ['user_id' => Auth::user()->id],
-                    [
-                        'aadhar_no' => $aadhar_no,
-                        'aadhar_status' => 0,
-                        'aadhar_front_image' => "app/private/kyc/".$frontImageName,
-                        'aadhar_back_image' => "app/private/kyc/".$backImageName,
-                    ]
+                    $kycData
                 );
                 // DB::enableQueryLog();
                 // $laQuery = DB::getQueryLog();

@@ -132,7 +132,7 @@ class FundRequestController extends Controller
 
             $result = json_decode($response,true);
 
-            if($result['status']){
+            if($result && isset($result['status']) && $result['status']){
 
 
                  $orderId = $result['result']['orderId'];
@@ -178,7 +178,7 @@ class FundRequestController extends Controller
 
                            $response =[
                             'status'=> false,
-                            'message'=> $result['message']
+                            'message'=> $result['message'] ?? 'Payment gateway unavailable. Please try again later.'
                         ];
 
 
@@ -1005,6 +1005,9 @@ class FundRequestController extends Controller
 
     public function callback_gateway(Request $request){
                 $input = $request->all();
+                if (!isset($input['response'])) {
+                    return response()->json(['success' => false, 'message' => 'No payment response received.'], 200);
+                }
                 $saltKey = env('PHONEPE_SALT_KEY');
                 $saltIndex = 1;
                 $resdsult  = base64_decode($input['response']);

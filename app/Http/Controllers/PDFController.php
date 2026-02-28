@@ -5,10 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Investment;
 use App\Models\User;
 use Illuminate\Support\Facades\File;
-// use Barryvdh\DomPDF\Facade as PDF;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-    use PDF;
 
 
 class PDFController extends Controller

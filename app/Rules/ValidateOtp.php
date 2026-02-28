@@ -24,6 +24,10 @@ class ValidateOtp implements ValidationRule
     {   
          
          
+        if (empty($this->mobile)) {
+            $fail('Mobile number is required for OTP validation');
+            return;
+        }
         $vll = (new Otp)->validate($this->mobile, $value);
         if ($vll->status == false) {
             $fail('OTP is not valid');
